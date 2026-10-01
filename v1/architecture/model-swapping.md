@@ -28,10 +28,11 @@ Extend the core Reyhan model in your application namespace (or inside an extensi
 ```php
 namespace App\Models;
 
+use App\Contracts\Models\ProductContract;
 use Reyhan\Core\Models\Product as BaseProduct;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class CustomProduct extends BaseProduct
+class CustomProduct extends BaseProduct implements ProductContract
 {
     /**
      * Define a custom relationship to a 3D model viewer asset.

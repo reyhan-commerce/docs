@@ -52,6 +52,20 @@ The framework ships with an executable orchestrator in the project root that aut
 
 ---
 
+## 🛠️ Technology Stack & Architectural Foundation
+
+| Domain | Technology / Engine | Architectural Role & Implementation Details |
+| :--- | :--- | :--- |
+| **Backend Engine** | **PHP 8.4+ & Laravel 13** | Single-responsibility `final` Action classes, strongly-typed DTOs (`spatie/laravel-data`), native Eloquent entities, and queue workers. |
+| **Admin Backoffice** | **Filament 5 & Livewire 3** | High-productivity Persian/English admin console, RBAC permissions (`filament-shield`), and websocket real-time updates. |
+| **Storefront Layer** | **Nuxt 4 & Vue 3** | Server-Side Rendering (SSR), Composition API, Pinia state stores, Reka UI headless primitives, and Tailwind 4. |
+| **Primary Database** | **PostgreSQL 17+** | Enterprise JSONB variant matrices, GIN indexing, `pg_trgm` fuzzy text matching, and pessimistic database row-locking (`lockForUpdate`). |
+| **Memory & Mutex Engine** | **Redis 7+** | Sub-millisecond cart caching, distributed sessions, Horizon queues, and self-purging ZSET stock reservation mutexes. |
+| **High-Performance Runtime** | **FrankenPHP Octane & Caddy** | Worker-mode execution for microsecond response times and automated SSL certificate management. |
+| **Testing & Quality Assurance** | **Pest 4 & Vitest** | End-to-end domain feature testing, concurrency assertions, and automated UI unit testing. |
+
+---
+
 ## Architectural Feature Matrix
 
 | Domain | Architectural Implementation | Key Benefit |
