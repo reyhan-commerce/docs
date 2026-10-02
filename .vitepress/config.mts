@@ -49,7 +49,8 @@ export default defineConfig({
             { text: 'Overview & Philosophy', link: '/v1/getting-started/overview' },
             { text: 'Installation Guide', link: '/v1/getting-started/installation' },
             { text: 'Configuration & BYOD', link: '/v1/getting-started/configuration' },
-            { text: 'Directory Anatomy', link: '/v1/getting-started/directory-structure' }
+            { text: 'Directory Anatomy', link: '/v1/getting-started/directory-structure' },
+            { text: 'Upgrade Guide', link: '/v1/getting-started/upgrade-guide' }
           ]
         },
         {
