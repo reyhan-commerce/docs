@@ -68,6 +68,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: 'First-Class Domain Facades', link: '/v1/backend/domain-facades' },
+            { text: 'Hookable Commercial Pipelines', link: '/v1/backend/commercial-pipelines' },
             { text: 'Actions & Strongly-Typed DTOs', link: '/v1/backend/actions-and-dtos' },
             { text: 'Catalog, Products & Variants', link: '/v1/backend/catalog-and-products' },
             { text: 'Cart, Checkout & Concurrency Locks', link: '/v1/backend/cart-and-checkout' },
