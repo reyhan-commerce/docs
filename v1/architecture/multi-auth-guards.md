@@ -8,18 +8,18 @@ Security and authentication in Reyhan Commerce are founded upon the **Principle 
 
 ```mermaid
 graph TD
-    subgraph OperationsRealm [Operations & Staff Realm]
-        Staff[Admin / Operator] -->|Session Auth + fa/RTL Panel| AdminPanel[Filament 5 Admin Panel]
-        AdminPanel --> AdminGuard[Guard: admin]
-        AdminGuard --> AdminModel[Model: Reyhan\Core\Models\Admin]
-        AdminModel --> Shield[Spatie Permissions & Role Shield]
+    subgraph OperationsRealm ["Operations & Staff Realm"]
+        Staff["Admin / Operator"] -->|"Session Auth + fa/RTL Panel"| AdminPanel["Filament 5 Admin Panel"]
+        AdminPanel --> AdminGuard["Guard: admin"]
+        AdminGuard --> AdminModel["Model: Reyhan\Core\Models\Admin"]
+        AdminModel --> Shield["Spatie Permissions & Role Shield"]
     end
 
-    subgraph CustomerRealm [Customer Shopping Realm]
-        Customer[Shopping Customer] -->|RESTful OTP API| ClientApp[Client App / Storefront / Mobile]
-        ClientApp -->|Bearer Token| SanctumGuard[Guard: sanctum]
-        SanctumGuard --> UserModel[Model: Reyhan\Core\Models\User / App\Models\User]
-        UserModel --> ShoppingEntities[Orders, Addresses, Wishlists, Cart]
+    subgraph CustomerRealm ["Customer Shopping Realm"]
+        Customer["Shopping Customer"] -->|"RESTful OTP API"| ClientApp["Client App / Storefront / Mobile"]
+        ClientApp -->|"Bearer Token"| SanctumGuard["Guard: sanctum"]
+        SanctumGuard --> UserModel["Model: Reyhan\Core\Models\User / App\Models\User"]
+        UserModel --> ShoppingEntities["Orders, Addresses, Wishlists, Cart"]
     end
 ```
 

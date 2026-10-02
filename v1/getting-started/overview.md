@@ -10,25 +10,25 @@ Unlike monolithic shopping carts or generic starter templates, Reyhan enforces a
 
 ```mermaid
 graph TD
-    Client[Shopping Customer] -->|RESTful API / WebSockets| Engine[Reyhan Headless Core]
-    Staff[Store Staff / Admin] -->|Filament Admin Console fa/en| Admin[Admin Panel & Shield]
+    Client["Shopping Customer"] -->|"RESTful API / WebSockets"| Engine["Reyhan Headless Core"]
+    Staff["Store Staff / Admin"] -->|"Filament Admin Console fa/en"| Admin["Admin Panel & Shield"]
 
-    subgraph FrameworkCore [Reyhan Framework Core (reyhan-commerce/core)]
-        Engine --> Facades[Domain Facades: Cart, Pricing, Ledger]
-        Engine --> Pipelines[Commercial Pipelines: Cart & Order]
-        Engine --> ModelResolver[Dynamic Model Swapping: Reyhan::useModel]
-        Admin --> FilamentPlugin[ReyhanCorePlugin]
+    subgraph FrameworkCore ["Reyhan Framework Core (reyhan-commerce/core)"]
+        Engine --> Facades["Domain Facades: Cart, Pricing, Ledger"]
+        Engine --> Pipelines["Commercial Pipelines: Cart & Order"]
+        Engine --> ModelResolver["Dynamic Model Swapping: Reyhan::useModel"]
+        Admin --> FilamentPlugin["ReyhanCorePlugin"]
     end
 
-    subgraph UserLand [User-Land Application (reyhan-commerce/reyhan)]
-        CustomModels[Extended Models in app/Models/]
-        CustomActions[Single-Responsibility Actions in app/Actions/]
-        Extensions[Modular Plugins in extensions/]
+    subgraph UserLand ["User-Land Application (reyhan-commerce/reyhan)"]
+        CustomModels["Extended Models in app/Models/"]
+        CustomActions["Single-Responsibility Actions in app/Actions/"]
+        Extensions["Modular Plugins in extensions/"]
     end
 
-    subgraph Infrastructure [BYOD Infrastructure]
-        DB[(PostgreSQL 17+ Enterprise DB)]
-        Cache[(Redis 7+ Memory Engine)]
+    subgraph Infrastructure ["BYOD Infrastructure"]
+        DB[("PostgreSQL 17+ Enterprise DB")]
+        Cache[("Redis 7+ Memory Engine")]
     end
 
     UserLand --> FrameworkCore

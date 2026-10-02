@@ -10,20 +10,20 @@ Upgrading e-commerce software is historically stressful. Reyhan Commerce elimina
 sequenceDiagram
     autonumber
     actor Admin as System Administrator
-    participant CLI as ./reyhan update
+    participant CLI as Reyhan CLI
     participant DB as PostgreSQL 17
     participant Core as Reyhan Framework Core
-    participant Octane as FrankenPHP / Octane Workers
+    participant Octane as FrankenPHP / Octane
 
-    Admin->>CLI: Executes ./reyhan update
+    Admin->>CLI: Executes update command
     CLI->>DB: Pre-flight Health Check
     CLI->>DB: Generates Compressed Database Snapshot
-    CLI->>Core: Pulls SemVer Core Release & Dependencies
-    CLI->>DB: Executes New Migrations (php artisan migrate --force)
-    CLI->>Core: Upgrades Admin Assets (filament:upgrade)
-    CLI->>Core: Flushes & Rebuilds Config, Route & Event Caches
-    CLI->>Octane: Sends Graceful SIGUSR1 Signal (Zero-Downtime Reload)
-    CLI-->>Admin: Update Complete! Framework Running on New Version.
+    CLI->>Core: Pulls SemVer Core Release and Dependencies
+    CLI->>DB: Executes New Migrations
+    CLI->>Core: Upgrades Admin Assets
+    CLI->>Core: Flushes and Rebuilds Caches
+    CLI->>Octane: Sends Graceful Reload Signal
+    CLI-->>Admin: Update Complete! Framework Running on New Version
 ```
 
 ---

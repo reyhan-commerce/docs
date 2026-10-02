@@ -30,14 +30,14 @@ $$\text{Debit} (\text{Bank} + \text{Wallet} + \text{Discounts}) = \text{Credit} 
 
 ```mermaid
 flowchart LR
-    subgraph Debits [Debits (Uses of Funds)]
+    subgraph Debits ["Debits (Uses of Funds)"]
         D1["Bank Clearing (10101): 850,000"]
         D2["Wallet Used (20101): 100,000"]
         D3["Coupon Expense (50101): 50,000"]
         TotalDebit["Total Debit: 1,000,000 Rial"]
     end
 
-    subgraph Credits [Credits (Sources of Value)]
+    subgraph Credits ["Credits (Sources of Value)"]
         C1["Sales Revenue (40101): 800,000"]
         C2["Shipping Revenue (40201): 120,000"]
         C3["VAT Payable (20301): 80,000"]

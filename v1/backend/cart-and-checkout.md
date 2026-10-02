@@ -9,26 +9,26 @@ In high-volume e-commerce, flash sales and campaign traffic can trigger severe *
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Customer1 as Customer A (Flash Sale)
-    actor Customer2 as Customer B (Flash Sale)
+    actor Customer1 as Customer A
+    actor Customer2 as Customer B
     participant Action as CreateOrderAction
-    participant DB as PostgreSQL 17 (pessimistic lock)
+    participant DB as PostgreSQL 17
 
-    Customer1->>Action: Checkout Item (Stock = 1)
-    Customer2->>Action: Checkout Item (Stock = 1)
+    Customer1->>Action: Checkout Item with Stock = 1
+    Customer2->>Action: Checkout Item with Stock = 1
     
-    Action->>DB: Variant::lockForUpdate()->find() [Customer 1 Locks Row]
-    Note over DB: Lock granted to Customer 1. Customer 2 request waits.
+    Action->>DB: Applies lockForUpdate on product variant
+    Note over DB: Lock granted to Customer A. Customer B waits.
     
-    Action->>DB: Decrements Stock: 1 -> 0
-    Action->>DB: Creates Order #101
-    Action->>DB: Commits Transaction [Lock Released]
+    Action->>DB: Decrements Stock from 1 to 0
+    Action->>DB: Creates Order 101
+    Action->>DB: Commits Transaction and releases lock
     
-    DB-->>Customer1: Order Created & Payment Gateway Redirected
+    DB-->>Customer1: Order Created and redirected to gateway
     
-    Note over DB: Lock granted to Customer 2. Evaluates stock = 0.
-    Action->>DB: Evaluates Stock (0 < 1) -> Throws InsufficientStockException
-    DB-->>Customer2: 422 Unprocessable Entity ("Item is out of stock")
+    Note over DB: Lock granted to Customer B. Evaluates stock = 0.
+    Action->>DB: Evaluates Stock and throws InsufficientStockException
+    DB-->>Customer2: 422 Unprocessable Entity - Item is out of stock
 ```
 
 ---

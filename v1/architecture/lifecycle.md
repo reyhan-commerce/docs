@@ -9,31 +9,31 @@ Understanding how a request flows through the **Reyhan Commerce** backend engine
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Client as Client App (Storefront / Mobile / Webhook)
-    participant Octane as FrankenPHP / Octane Worker
-    participant Middleware as Auth, Throttle & Normalization
-    participant Controller as Thin API Controller
-    participant DTO as Strongly-Typed DTO
-    participant Action as Domain Action (execute)
-    participant ModelResolver as Reyhan Model Registry
-    participant DB as PostgreSQL 17 (Pessimistic Lock)
-    participant Redis as Redis 7 (Fast Mutex & Queues)
+    actor Client as Client Application
+    participant Octane as FrankenPHP / Octane
+    participant Middleware as Middleware Pipeline
+    participant Controller as Thin Controller
+    participant DTO as Typed DTO
+    participant Action as Domain Action
+    participant ModelResolver as Model Registry
+    participant DB as PostgreSQL 17
+    participant Redis as Redis 7
 
-    Client->>Octane: Dispatches RESTful HTTP / JSON Request
+    Client->>Octane: Dispatches RESTful HTTP JSON Request
     Octane->>Middleware: Passes Request through Pipeline
-    Middleware->>Middleware: Normalizes Digits & Persian Characters (ZWNJ)
-    Middleware->>Middleware: Evaluates Sanctum Token & Redis Rate Limits
+    Middleware->>Middleware: Normalizes Digits and Persian Characters
+    Middleware->>Middleware: Evaluates Sanctum Token and Rate Limits
     Middleware->>Controller: Routes to Thin Controller
-    Controller->>DTO: Hydrates & Validates Incoming Payload
-    Controller->>Action: Invokes Action::execute(DTO)
-    Action->>ModelResolver: Resolves active entity classes (Reyhan::model)
-    Action->>Redis: Checks & acquires temporary inventory mutex
-    Action->>DB: Executes DB::transaction() with lockForUpdate()
-    DB-->>Action: Persists Order / Ledger / Invoice records
-    Action->>Redis: Dispatches Async Jobs (SMS, Webhooks) to Horizon
-    Action-->>Controller: Returns typed Domain Result / DTO
+    Controller->>DTO: Hydrates and Validates Incoming Payload
+    Controller->>Action: Invokes Action execute
+    Action->>ModelResolver: Resolves active entity classes
+    Action->>Redis: Checks and acquires temporary stock reservation
+    Action->>DB: Executes transaction with row lock
+    DB-->>Action: Persists Order, Ledger and Invoice records
+    Action->>Redis: Dispatches Async Jobs to Horizon
+    Action-->>Controller: Returns typed Domain Result
     Controller-->>Octane: Serializes to JsonResponse via ApiResource
-    Octane-->>Client: Returns HTTP 200/201 JSON Payload
+    Octane-->>Client: Returns HTTP 200 or 201 Response
 ```
 
 ---

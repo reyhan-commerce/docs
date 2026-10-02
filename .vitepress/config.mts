@@ -1,6 +1,8 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
-export default defineConfig({
+export default withMermaid(
+  defineConfig({
   title: 'Reyhan Commerce',
   titleTemplate: ':title | Reyhan Framework',
   description: 'Official Documentation for the Reyhan Commerce Framework — An enterprise full-stack, headless, and modular e-commerce engine.',
@@ -146,4 +148,4 @@ export default defineConfig({
       copyright: 'Copyright © 2026 Reyhan Commerce Framework'
     }
   }
-})
+}))
