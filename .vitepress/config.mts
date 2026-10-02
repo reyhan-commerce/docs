@@ -26,10 +26,10 @@ export default defineConfig({
     nav: [
       { text: 'Getting Started', link: '/v1/getting-started/overview' },
       { text: 'Architecture', link: '/v1/architecture/lifecycle' },
-      { text: 'Backend Domain', link: '/v1/backend/actions-and-dtos' },
-      { text: 'Storefront', link: '/v1/storefront/branding-and-theming' },
+      { text: 'Backend Domain', link: '/v1/backend/domain-facades' },
       { text: 'Extensions', link: '/v1/extensions/plugin-architecture' },
       { text: 'CLI Reference', link: '/v1/cli/cli-reference' },
+      { text: 'Storefront (Coming Soon)', link: '/v1/storefront/official-storefront' },
       {
         text: 'v1.x (Stable)',
         items: [
@@ -79,13 +79,10 @@ export default defineConfig({
           ]
         },
         {
-          text: '🎨 Storefront & UI Layer',
+          text: '🎨 Official Storefront',
           collapsed: false,
           items: [
-            { text: 'Branding & Theming (app.config)', link: '/v1/storefront/branding-and-theming' },
-            { text: 'Component Overriding System', link: '/v1/storefront/component-overriding' },
-            { text: 'Custom Layouts & Pages', link: '/v1/storefront/layouts-and-pages' },
-            { text: 'Cart State Store (useCartStore)', link: '/v1/storefront/state-and-cart-store' }
+            { text: 'Nuxt 4 Storefront (Coming Soon)', link: '/v1/storefront/official-storefront' }
           ]
         },
         {

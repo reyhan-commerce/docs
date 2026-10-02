@@ -3,11 +3,11 @@ layout: home
 
 hero:
   name: "Reyhan Commerce"
-  text: "The Sovereign Headless E-Commerce Framework"
-  tagline: "Engineered for uncompromising performance, domain-driven actions, strict data isolation, dynamic model swapping, and zero-breaking upgrades."
+  text: "The Sovereign Headless E-Commerce Backend Framework"
+  tagline: "Engineered for Laravel 13 with 100% strict typing, single-responsibility domain actions, dynamic model extensibility, two-tier concurrency locks, and double-entry financial precision."
   image:
     src: /icon.svg
-    alt: Reyhan Commerce Framework
+    alt: Reyhan Commerce Backend Framework
   actions:
     - theme: brand
       text: 🚀 Get Started
@@ -16,52 +16,70 @@ hero:
       text: 🏛 Core Architecture
       link: /v1/architecture/lifecycle
     - theme: alt
-      text: 📦 GitHub Repository
-      link: https://github.com/reyhan-commerce/reyhan
+      text: 📦 Packagist (Core)
+      link: https://packagist.org/packages/reyhan-commerce/core
 
 features:
   - icon: 🛡
     title: Strict Core vs. User-Land Boundary
-    details: Complete customization freedom without touching core code. Receive seamless central framework upgrades with zero fear of breaking user code.
+    details: Clean Composer package architecture. Extend models and inject pipelines with zero fear of breaking vendor code during framework updates.
   - icon: 🎯
     title: Action & DTO Architecture
-    details: Strongly-typed data transfer objects (DTOs), dedicated single-responsibility Action classes, native database transactions, and zero repository overhead.
+    details: Follows Farshid's premier Laravel Constitution with final Action classes, typed DTOs, native Eloquent queries, and strictly zero repository bloat.
   - icon: 🔌
-    title: Dynamic Model Swapping
-    details: Seamlessly swap and extend core domain models (Product, Order, Variant) with strict contracts using the central Reyhan registry.
-  - icon: 🛠
-    title: Unified Orchestrator CLI (./reyhan)
-    details: Manage the entire system lifecycle—from automated health diagnostics and database migrations to zero-downtime rolling updates.
-  - icon: 🎨
-    title: Cascading Storefront Engine
-    details: Instant component and layout overrides, optimistic reactive cart state, zero-custom-CSS design tokens, and automated SEO metadata.
+    title: Dynamic Model Extensibility
+    details: Swap or augment core Eloquent models (Product, Order, Variant) at runtime using Reyhan::useModel() with automatic polymorphic resolution.
+  - icon: 🔒
+    title: Two-Tier Concurrency Protection
+    details: Prevents overselling during high-traffic flash sales using fast atomic Redis memory mutexes paired with PostgreSQL pessimistic row locks.
+  - icon: ⚖️
+    title: Double-Entry Financial Ledger
+    details: Strictly balanced accounting entries (debit == credit) for all monetary transactions, customer wallets, and invoice records.
   - icon: 💳
-    title: Multi-Driver Payments & SMS Engine
-    details: Modular driver-based architecture for banking gateways, merchant aggregators, and pattern-based transactional SMS notifications.
+    title: Multi-Driver Payments & Iranian SMS
+    details: Driver-based integration with Shetabit banking gateways (Zarinpal, SEP, Mellat) and pattern-based transactional SMS engines.
 ---
 
 <div class="vp-doc" style="max-width: 900px; margin: 40px auto;">
 
-## Why Reyhan Commerce?
+## Headless Architecture & Decoupled Ecosystem
 
-Reyhan is not a bloated monolithic e-commerce script or a superficial template. It is an **architecturally pure, headless e-commerce framework** designed for teams building high-traffic, resilient, and fully customizable storefronts.
+Reyhan Commerce is an architecturally pure, headless backend e-commerce framework designed for engineering teams building resilient, scalable commerce platforms.
 
-### Architectural Blueprint
+### Architecture Overview
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│                    Reyhan Orchestrator                      │
-│                  (./reyhan & create-reyhan)                 │
+│                 reyhan-commerce/installer                    │
+│      Composer Global CLI Scaffolder: `reyhan new my-store`  │
 └──────────────────────────────┬──────────────────────────────┘
+                               │ provisions
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   reyhan-commerce/reyhan                    │
+│   Starter Application Skeleton (Standard Laravel 13 Layout) │
+│       app/, config/, database/, extensions/, routes/        │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ consumes
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    reyhan-commerce/core                     │
+│  Sovereign Commerce Engine Package (vendor/reyhan-commerce) │
+│  - First-Class Domain Facades (Cart, Pricing, Ledger)       │
+│  - Commercial Calculation & Order Fulfillment Pipelines     │
+│  - Dynamic Model Resolution & Extension Service Provider    │
+│  - Filament 5 Admin Backoffice & OpenAPI Documentation      │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+               RESTful JSON APIs & WebSockets
                                │
        ┌───────────────────────┴───────────────────────┐
        ▼                                               ▼
 ┌──────────────────────────────┐        ┌──────────────────────────────┐
-│       Backend Domain         │        │      Storefront Engine       │
-│  - Action & DTO Architecture │        │  - Component Overriding      │
-│  - Dynamic Model Swapping    │        │  - app.config Theming        │
-│  - Multi-Driver Payments/SMS │        │  - Optimistic Cart Store     │
-│  - PostgreSQL 17 + Redis 7   │        │  - Zero Custom CSS Tokens    │
+│    Custom Client Layers      │        │  Official Nuxt 4 Storefront  │
+│  - Flutter / React Native    │        │  - reyhan-commerce/          │
+│  - Telegram Mini Apps        │        │    storefront-nuxt           │
+│  - Next.js / Svelte / Remix  │        │  - 🚀 Coming Soon / In Dev   │
 └──────────────────────────────┘        └──────────────────────────────┘
 ```
 
