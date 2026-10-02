@@ -69,6 +69,7 @@ export default defineConfig({
           items: [
             { text: 'First-Class Domain Facades', link: '/v1/backend/domain-facades' },
             { text: 'Hookable Commercial Pipelines', link: '/v1/backend/commercial-pipelines' },
+            { text: 'Double-Entry Financial Ledger', link: '/v1/backend/financial-ledger' },
             { text: 'Actions & Strongly-Typed DTOs', link: '/v1/backend/actions-and-dtos' },
             { text: 'Catalog, Products & Variants', link: '/v1/backend/catalog-and-products' },
             { text: 'Cart, Checkout & Concurrency Locks', link: '/v1/backend/cart-and-checkout' },
