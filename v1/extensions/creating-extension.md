@@ -72,18 +72,18 @@ Create `backend/extensions/loyalty-points/src/Providers/LoyaltyPointsServiceProv
 ```php
 namespace Reyhan\Extensions\LoyaltyPoints\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Reyhan\Core\Support\Extensions\ReyhanExtensionServiceProvider;
 use Illuminate\Support\Facades\Event;
 use Reyhan\Core\Events\Payment\PaymentVerifiedEvent;
 use Reyhan\Extensions\LoyaltyPoints\Actions\AwardOrderPointsAction;
 
-class LoyaltyPointsServiceProvider extends ServiceProvider
+class LoyaltyPointsServiceProvider extends ReyhanExtensionServiceProvider
 {
     public function boot(): void
     {
-        // Listen to core framework event
-        Event::listen(OrderPaidEvent::class, function (OrderPaidEvent $event) {
-            app(AwardOrderPointsAction::class)->execute($event->order);
+        // Listen to core framework payment settlement event
+        Event::listen(PaymentVerifiedEvent::class, function (PaymentVerifiedEvent $event) {
+            app(AwardOrderPointsAction::class)->execute($event->payment->order);
         });
     }
 }
