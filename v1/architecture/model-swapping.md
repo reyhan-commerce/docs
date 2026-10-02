@@ -11,7 +11,7 @@ This allows you to replace any core model with your own custom subclass that add
 Internally, every core action and service resolves models using the `Reyhan` facade:
 
 ```php
-use App\Support\Reyhan;
+use Reyhan\Core\Support\Reyhan;
 
 // Core resolution pattern
 $productClass = Reyhan::model('product');
@@ -28,7 +28,7 @@ Extend the core Reyhan model in your application namespace (or inside an extensi
 ```php
 namespace App\Models;
 
-use App\Contracts\Models\ProductContract;
+use Reyhan\Core\Contracts\Models\ProductContract;
 use Reyhan\Core\Models\Product as BaseProduct;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 

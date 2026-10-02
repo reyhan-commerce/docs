@@ -19,9 +19,9 @@ Out of the box, Reyhan provides adapters for leading Iranian payment networks vi
 ## 2. Initiating a Payment in an Action
 
 ```php
-namespace App\Actions\Payment;
+namespace Reyhan\Core\Actions\Payment;
 
-use App\Models\Order;
+use Reyhan\Core\Models\Order;
 use Shetabit\Multipay\Invoice;
 use Shetabit\Payment\Facade\Payment;
 
@@ -55,12 +55,12 @@ final class InitiatePaymentAction
 Callbacks are handled via a dedicated, idempotent verification action:
 
 ```php
-namespace App\Actions\Payment;
+namespace Reyhan\Core\Actions\Payment;
 
-use App\Models\Order;
+use Reyhan\Core\Models\Order;
 use Shetabit\Payment\Facade\Payment;
 use Shetabit\Multipay\Exceptions\InvalidPaymentException;
-use App\Enums\OrderStatus;
+use Reyhan\Core\Enums\Order\OrderStatus;
 
 final class VerifyPaymentAction
 {

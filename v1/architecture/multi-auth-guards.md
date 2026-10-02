@@ -11,14 +11,14 @@ graph TD
     subgraph OperationsRealm [Operations & Staff Realm]
         Staff[Admin / Operator] -->|Session Auth + fa/RTL Panel| AdminPanel[Filament 5 Admin Panel]
         AdminPanel --> AdminGuard[Guard: admin]
-        AdminGuard --> AdminModel[Model: App\Models\Admin]
+        AdminGuard --> AdminModel[Model: Reyhan\Core\Models\Admin]
         AdminModel --> Shield[Spatie Permissions & Role Shield]
     end
 
     subgraph CustomerRealm [Customer Shopping Realm]
         Customer[Shopping Customer] -->|Passwordless Mobile OTP| Storefront[Nuxt 4 Storefront]
         Storefront --> SanctumGuard[Guard: sanctum]
-        SanctumGuard --> UserModel[Model: App\Models\User]
+        SanctumGuard --> UserModel[Model: Reyhan\Core\Models\User / App\Models\User]
         UserModel --> ShoppingEntities[Orders, Addresses, Wishlists, Cart]
     end
 ```

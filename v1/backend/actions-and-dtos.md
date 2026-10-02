@@ -15,13 +15,13 @@ Every Action in Reyhan must obey the following architectural rules:
 ### Example: `CreateOrderAction`
 
 ```php
-namespace App\Actions\Order;
+namespace Reyhan\Core\Actions\Checkout;
 
-use App\Data\Order\CreateOrderData;
-use App\Models\Order;
-use App\Support\Reyhan;
+use Reyhan\Core\Data\Checkout\CreateOrderData;
+use Reyhan\Core\Models\Order;
+use Reyhan\Core\Support\Reyhan;
 use Illuminate\Support\Facades\DB;
-use App\Exceptions\InsufficientStockException;
+use Reyhan\Core\Exceptions\InsufficientStockException;
 
 final class CreateOrderAction
 {
@@ -50,7 +50,7 @@ final class CreateOrderAction
             $order = $orderClass::create([
                 'user_id'          => $data->userId,
                 'total_amount'     => $variant->price * $data->quantity,
-                'status'           => \App\Enums\OrderStatus::PendingPayment,
+                'status'           => \Reyhan\Core\Enums\Order\OrderStatus::PendingPayment,
                 'shipping_address' => $data->shippingAddress->toArray(),
             ]);
 
@@ -67,7 +67,7 @@ final class CreateOrderAction
 DTOs guarantee that incoming API payloads and internal method inputs are strictly validated, typed, and structured before reaching domain actions.
 
 ```php
-namespace App\Data\Order;
+namespace Reyhan\Core\Data\Checkout;
 
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Attributes\Validation\Required;
@@ -98,10 +98,10 @@ class CreateOrderData extends Data
 Controllers in Reyhan only handle HTTP serialization and dispatch:
 
 ```php
-namespace App\Http\Controllers\Api\V1;
+namespace Reyhan\Core\Http\Controllers\Api\V1;
 
-use App\Actions\Order\CreateOrderAction;
-use App\Data\Order\CreateOrderData;
+use Reyhan\Core\Actions\Checkout\CreateOrderAction;
+use Reyhan\Core\Data\Checkout\CreateOrderData;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 

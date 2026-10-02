@@ -40,7 +40,7 @@ Create `backend/extensions/loyalty-points/src/Actions/AwardOrderPointsAction.php
 ```php
 namespace Reyhan\Extensions\LoyaltyPoints\Actions;
 
-use App\Models\Order;
+use Reyhan\Core\Models\Order;
 use Illuminate\Support\Facades\DB;
 
 final class AwardOrderPointsAction
@@ -74,7 +74,7 @@ namespace Reyhan\Extensions\LoyaltyPoints\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
-use App\Events\OrderPaidEvent;
+use Reyhan\Core\Events\Payment\PaymentVerifiedEvent;
 use Reyhan\Extensions\LoyaltyPoints\Actions\AwardOrderPointsAction;
 
 class LoyaltyPointsServiceProvider extends ServiceProvider

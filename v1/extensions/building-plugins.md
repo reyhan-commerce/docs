@@ -28,8 +28,8 @@ The order creation process uses `OrderCreationPipeline`. You can inject custom b
 ```php
 namespace Reyhan\Plugins\FraudGuard;
 
-use App\Pipelines\Checkout\OrderCreationContext;
-use App\Pipelines\Checkout\OrderCreationPipeline;
+use Reyhan\Core\Pipelines\Checkout\OrderCreationContext;
+use Reyhan\Core\Pipelines\Checkout\OrderCreationPipeline;
 use Closure;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\ValidationException;
@@ -41,7 +41,7 @@ final class AntiFraudPipe
         // Intercept order context prior to database persistence
         if ($context->finalPayable > 500_000_000 && ! $context->user->is_verified) {
             throw ValidationException::withMessages([
-                'fraud' => ['سفارش‌های با مبلغ بالاتر از ۵۰ میلیون تومان نیازمند احراز هویت پیامکی هستند.'],
+                'fraud' => ['High value orders require mobile verification.'],
             ]);
         }
 
@@ -64,16 +64,16 @@ Reyhan Core dispatches strongly-typed domain events during critical lifecycle st
 
 | Domain Event | Dispatched When | Payload |
 | :--- | :--- | :--- |
-| `App\Events\Orders\OrderCreated` | Order and snapshot line-items are persisted in DB | `Order $order` |
-| `App\Events\Orders\OrderPaid` | Order is settled via Gateway or Wallet | `Order $order`, `Payment $payment` |
-| `App\Events\Orders\OrderCancelled` | Order is cancelled or payment verification fails | `Order $order`, `?string $reason` |
-| `App\Events\Inventory\StockDepleted` | Variant physical inventory reaches 0 | `ProductVariant $variant` |
-| `App\Events\Auth\CustomerRegistered` | New customer registers via OTP or Password | `User $user` |
+| `Reyhan\Core\Events\Orders\OrderCreated` | Order and snapshot line-items are persisted in DB | `Order $order` |
+| `Reyhan\Core\Events\Orders\OrderPaid` | Order is settled via Gateway or Wallet | `Order $order`, `Payment $payment` |
+| `Reyhan\Core\Events\Orders\OrderCancelled` | Order is cancelled or payment verification fails | `Order $order`, `?string $reason` |
+| `Reyhan\Core\Events\Inventory\StockDepleted` | Variant physical inventory reaches 0 | `ProductVariant $variant` |
+| `Reyhan\Core\Events\Auth\CustomerRegistered` | New customer registers via OTP or Password | `User $user` |
 
 ### Example Event Listener
 
 ```php
-use App\Events\Orders\OrderPaid;
+use Reyhan\Core\Events\Orders\OrderPaid;
 use Illuminate\Support\Facades\Event;
 
 Event::listen(OrderPaid::class, function (OrderPaid $event) {
@@ -92,10 +92,10 @@ Scaffold a new Shaparak direct bank driver:
 php artisan reyhan:make:payment-driver Pasargad
 ```
 
-Implement `PaymentDriverInterface` in `app/Services/Payment/Drivers/PasargadDriver.php` and register your driver:
+Implement `PaymentDriverInterface` in `extensions/payment-pasargad/src/Drivers/PasargadDriver.php` and register your driver:
 
 ```php
-use App\Services\Payment\PaymentManager;
+use Reyhan\Core\Services\Payment\PaymentManager;
 
 app(PaymentManager::class)->extend('pasargad', function ($app) {
     return new PasargadDriver();

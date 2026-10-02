@@ -35,14 +35,12 @@ Reyhan Commerce includes a dedicated **Text Normalization Engine** that automati
 You can invoke the normalization service directly anywhere in your custom actions or extensions:
 
 ```php
-namespace App\Services\Normalization;
+use Reyhan\Core\Services\Normalization\PersianNormalizer;
 
-use App\Services\Normalization\TextNormalizer;
-
-$cleanedMobile = TextNormalizer::normalizeDigits('۰۹۱۲۳۴۵۶۷۸۹');
+$cleanedMobile = PersianNormalizer::toAsciiDigits('۰۹۱۲۳۴۵۶۷۸۹');
 // Output: '09123456789'
 
-$cleanedTitle = TextNormalizer::normalizePersianCharacters('كرم مرطوب كننده پوست');
+$cleanedTitle = PersianNormalizer::clean('كرم مرطوب كننده پوست');
 // Output: 'کرم مرطوب کننده پوست'
 ```
 

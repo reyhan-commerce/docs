@@ -59,7 +59,7 @@ Reyhan supports seamless guest shopping with immediate cart migration upon authe
 Orders progress through a strictly defined lifecycle powered by native PHP 8.3+ Backed Enums:
 
 ```php
-namespace App\Enums;
+namespace Reyhan\Core\Enums\Order;
 
 enum OrderStatus: string
 {

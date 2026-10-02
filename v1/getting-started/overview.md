@@ -41,7 +41,7 @@ Business operations in Reyhan are never scattered across fat controllers or tang
 
 ### 2. Zero Core Modification (Upgrade Safety)
 In Reyhan, the core codebase is treated as an immutable dependency. You never edit vendor files. Customizations are achieved via:
-- **Backend:** Dynamic Model Swapping (`App\Support\Reyhan::model()`) and the modular `backend/extensions/` directory.
+- **Backend:** Dynamic Model Swapping (`Reyhan\Core\Support\Reyhan::model()`) and the modular `backend/extensions/` directory.
 - **Frontend:** Cascading component and layout overriding within `frontend/app/` combined with token-driven branding in `app.config.ts`.
 
 ### 3. Bring Your Own Database (BYOD)

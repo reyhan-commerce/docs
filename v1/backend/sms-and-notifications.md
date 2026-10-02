@@ -17,9 +17,9 @@ The driver manager allows instant switching via `.env` without touching applicat
 ## 2. Dispatching a Verification OTP
 
 ```php
-namespace App\Actions\Auth;
+namespace Reyhan\Core\Actions\Auth;
 
-use App\Services\Sms\SmsManager;
+use Reyhan\Core\Services\Sms\SmsManager;
 use Illuminate\Support\Facades\Cache;
 
 final class SendOtpAction
