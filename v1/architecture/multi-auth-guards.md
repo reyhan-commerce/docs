@@ -16,8 +16,8 @@ graph TD
     end
 
     subgraph CustomerRealm [Customer Shopping Realm]
-        Customer[Shopping Customer] -->|Passwordless Mobile OTP| Storefront[Nuxt 4 Storefront]
-        Storefront --> SanctumGuard[Guard: sanctum]
+        Customer[Shopping Customer] -->|RESTful OTP API| ClientApp[Client App / Storefront / Mobile]
+        ClientApp -->|Bearer Token| SanctumGuard[Guard: sanctum]
         SanctumGuard --> UserModel[Model: Reyhan\Core\Models\User / App\Models\User]
         UserModel --> ShoppingEntities[Orders, Addresses, Wishlists, Cart]
     end
@@ -29,17 +29,18 @@ graph TD
 
 Retail customers do not manage passwords. In modern e-commerce, forcing users to remember or reset complex passwords causes high checkout friction and cart abandonment.
 
-### Customer Workflow
-1. The customer enters their verified mobile phone number.
-2. The **SmsManager** dispatches a cryptographically secure 5-digit PIN via a transactional SMS pattern.
-3. The customer submits the PIN via the storefront's `<UPinInput>` component.
-4. The backend verifies the token and returns a revocable **Sanctum Bearer Token** for API session authorization.
+### Customer Authentication Flow
+
+1. **OTP Request:** The client application sends a request to `POST /api/v1/auth/otp/request` containing the customer's mobile phone number and a solved cryptographic captcha token.
+2. **Dispatch & Rate Limiting:** The backend checks Redis DB 0 rate limits (maximum 1 request per 120 seconds per mobile), generates a secure 5-digit verification token with a 120-second TTL, and queues a `SendOtpSmsJob` via `SmsManager`.
+3. **Verification:** The client submits the code to `POST /api/v1/auth/otp/verify`.
+4. **Sanctum Token Issuance:** The backend verifies the token, finds or creates the customer entity in the database, and returns a revocable **Sanctum Bearer Token** for authenticated API sessions.
 
 ---
 
 ## 3. Administrative Authentication: Guard-Isolated Staff
 
-Administrative users exist in an isolated table (`admins`) and authenticate strictly via the `admin` guard:
-* **Role-Based Access Control (RBAC):** Powered by native permission policies and Filament Shield.
-* **Separation of Concerns:** Even if a customer table is compromised, administrative session tokens and credentials remain completely isolated.
-* **Audit Logging:** Every administrative mutation, status change, and refund is attributed directly to the authenticated `Admin` entity with Jalali timestamping.
+Administrative users exist in an isolated database table (`admins`) and authenticate strictly via the `admin` guard:
+* **Role-Based Access Control (RBAC):** Powered by native permission policies and **Filament Shield**.
+* **Complete Token Isolation:** Customer authentication tables and tokens are entirely separate from administrative staff credentials.
+* **Audit Logging:** Every administrative mutation, status change, price adjustment, and refund is attributed directly to the authenticated `Admin` entity with Jalali timestamping.

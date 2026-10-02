@@ -1,12 +1,12 @@
 # Configuration & The BYOD Infrastructure Standard
 
-Reyhan Commerce follows the **BYOD (Bring Your Own Database)** infrastructure policy. The framework does not bundle, spawn, or enforce localized database daemons. Instead, it relies on cleanly managed environment variables to connect to your standalone infrastructure instances.
+Reyhan Commerce follows the **BYOD (Bring Your Own Database)** infrastructure standard. The framework does not bundle, spawn, or enforce localized database daemons. Instead, it relies on cleanly managed environment variables to connect to your standalone infrastructure instances.
 
 ---
 
 ## 1. Why PostgreSQL 17+ and Redis 7+ are Mandatory
 
-Reyhan leverages advanced relational and in-memory capabilities that are integral to its commerce engine:
+Reyhan leverages advanced relational and in-memory capabilities that are integral to its headless commerce engine:
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -28,9 +28,9 @@ Reyhan leverages advanced relational and in-memory capabilities that are integra
 
 ---
 
-## 2. Backend Environment Variables (`backend/.env`)
+## 2. Framework Environment Variables (`.env`)
 
-### Database Connection (PostgreSQL)
+### Database Connection (PostgreSQL 17+)
 ```ini
 DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
@@ -50,6 +50,11 @@ REDIS_PORT=6379
 CACHE_STORE=redis
 QUEUE_CONNECTION=redis
 SESSION_DRIVER=redis
+
+REDIS_DB=0
+REDIS_CACHE_DB=0
+REDIS_SESSION_DB=1
+REDIS_QUEUE_DB=2
 ```
 
 ### SMS Notification Drivers
@@ -59,7 +64,7 @@ KAVENEGAR_API_KEY=your_kavenegar_api_token
 KAVENEGAR_SENDER_LINE=10008000
 ```
 
-### Banking & Payment Gateway
+### Banking & Payment Gateways
 ```ini
 PAYMENT_DEFAULT_DRIVER=zarinpal
 ZARINPAL_MERCHANT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
@@ -68,14 +73,19 @@ ZARINPAL_SANDBOX=false
 
 ---
 
-## 3. Storefront Environment Variables (`frontend/.env`)
+## 3. Headless API & CORS Configuration
 
-The storefront communicates with the backend via RESTful endpoints authenticated via Sanctum tokens:
+Because Reyhan Commerce is completely headless, configure CORS and Sanctum stateful domains to authorize your decoupled client storefronts (such as Nuxt, Next.js, or mobile clients):
 
 ```ini
-# frontend/.env
-NUXT_PUBLIC_API_BASE=http://localhost:8000/api/v1
-NUXT_PUBLIC_SITE_URL=http://localhost:3000
+# Application URL
+APP_URL=http://localhost:8000
+
+# Client domains allowed to authenticate via stateful session cookies
+SANCTUM_STATEFUL_DOMAINS="localhost:3000,mystore.com"
+
+# Allowed origins for API requests
+CORS_ALLOWED_ORIGINS="http://localhost:3000,https://mystore.com"
 ```
 
 ---
@@ -85,12 +95,11 @@ NUXT_PUBLIC_SITE_URL=http://localhost:3000
 Run the built-in diagnostic tool to verify all database, cache, and filesystem access permissions:
 
 ```bash
-./reyhan doctor
+php artisan reyhan:doctor
 ```
 
 The doctor command evaluates:
-* PHP runtime version and required native C-extensions (`pdo_pgsql`, `redis`, etc.).
+* PHP runtime version and required native C-extensions (`pdo_pgsql`, `redis`, `intl`, `gd`, `bcmath`, `curl`, `pcntl`).
 * Live TCP connection and schema readability in PostgreSQL.
 * Live Redis ping latency and response validity.
-* Storage directory symlinks and write permissions (`backend/storage`).
-* Node.js and package manager version alignment.
+* Storage directory symlinks and write permissions (`storage/app`, `storage/framework`).

@@ -1,6 +1,6 @@
 # Production & Docker Deployment
 
-Reyhan Commerce is engineered for enterprise-grade containerized deployment using **Docker**, **FrankenPHP / Octane**, and **Caddy** automated SSL reverse-proxying.
+Reyhan Commerce is engineered for enterprise-grade containerized deployment using **Docker**, **FrankenPHP / Laravel Octane**, and **Caddy** automated SSL reverse-proxying.
 
 ---
 
@@ -28,18 +28,25 @@ This command automatically:
 │            (Port 80/443 -> Automatic SSL & HTTP/3)          │
 └──────────────────────────────┬──────────────────────────────┘
                                │
-       ┌───────────────────────┴───────────────────────┐
-       ▼                                               ▼
-┌──────────────────────────────┐        ┌──────────────────────────────┐
-│  FrankenPHP Octane Worker    │        │    Storefront SSR Worker     │
-│   (Backend API & Admin)      │        │       (Nuxt 4 Node / Nitro)  │
-└──────────────┬───────────────┘        └──────────────┬───────────────┘
-               │                                       │
-               └───────────────────┬───────────────────┘
+        ┌──────────────────────┴──────────────────────┐
+        ▼                                             ▼
+┌──────────────────────────────┐       ┌──────────────────────────────┐
+│  FrankenPHP Octane Worker    │       │   Horizon Queue Workers      │
+│   (Backend API & Filament)   │       │   (SMS, Webhooks, Emails)    │
+└──────────────┬───────────────┘       └──────────────┬───────────────┘
+               │                                      │
+               └───────────────────┬──────────────────┘
                                    ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                 Standalone Enterprise Tier                  │
 │       PostgreSQL 17 (DB Engine) + Redis 7 (Queues/Cache)    │
+└─────────────────────────────────────────────────────────────┘
+                               ▲
+                               │ RESTful APIs (/api/v1) & WebSockets
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Decoupled Client Layers                   │
+│   (Official Nuxt 4 Storefront, Flutter, React Native, CMS)   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -50,3 +57,4 @@ This command automatically:
 * **Octane Workers:** Set `OCTANE_WORKERS` to match `(2 * CPU cores)`.
 * **Redis Persistence:** Enable AOF (Append Only File) persistence on your Redis host.
 * **OPcache:** Ensure JIT (Just-In-Time) compilation is active in production PHP INI.
+* **Database Connection Pooling:** Utilize PgBouncer for high-concurrency connection reuse.

@@ -5,15 +5,15 @@ The long-term development of **Reyhan Commerce** is focused on architectural pur
 ---
 
 ## 🎯 Version 1.x (Current Stable Core)
-- [x] Action & Strongly-Typed DTO domain standard
-- [x] Dynamic Model Swapping engine (`Reyhan::model()`)
+- [x] Action & Strongly-Typed DTO domain standard (Farshid's Laravel Constitution)
+- [x] Dynamic Model Swapping engine (`Reyhan::useModel()`)
 - [x] BYOD infrastructure architecture (PostgreSQL 17 + Redis 7)
-- [x] Orchestrator CLI (`./reyhan`) with `doctor`, `install`, `update`, `dev`
-- [x] Multi-driver Payment Gateway subsystem
-- [x] SMS Notification Manager with pattern routing
-- [x] Cascading Storefront component and layout overriding engine
-- [x] Tokenized branding via `app.config.ts`
-- [x] Modular extensions subsystem (`backend/extensions/`)
+- [x] Orchestrator CLI (`./reyhan`) and first-class Artisan commands (`reyhan:doctor`, `reyhan:install`)
+- [x] Multi-driver Payment Gateway subsystem (Zarinpal, SEP, Mellat, Sandbox)
+- [x] SMS Notification Manager with pattern routing (Kavenegar, FarazSMS, Ghasedak)
+- [x] High-concurrency two-tier stock reservation engine (Redis mutex + PostgreSQL row locks)
+- [x] Double-entry financial accounting ledger for transactions, refunds, and wallet balances
+- [x] Modular extensions subsystem (`extensions/` with `module.json` auto-discovery)
 - [x] Zero-downtime rolling updates with automatic backup protection
 
 ---

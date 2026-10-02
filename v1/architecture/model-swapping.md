@@ -43,7 +43,7 @@ class CustomProduct extends BaseProduct implements ProductContract
     }
 
     /**
-     * Add a custom scope for featured storefront campaigns.
+     * Add a custom scope for featured marketing campaigns.
      */
     public function scopeActiveCampaign($query)
     {
@@ -52,12 +52,29 @@ class CustomProduct extends BaseProduct implements ProductContract
 }
 ```
 
-### Step 2: Register in `config/reyhan.php`
-Register your custom model class in the `models` configuration map:
+### Step 2: Register in `AppServiceProvider` or `config/reyhan.php`
+Register your custom model class at boot time in `app/Providers/AppServiceProvider.php`:
 
 ```php
-// backend/config/reyhan.php
+namespace App\Providers;
 
+use Illuminate\Support\ServiceProvider;
+use Reyhan\Core\Support\Reyhan;
+use App\Models\CustomProduct;
+
+class AppServiceProvider extends ServiceProvider
+{
+    public function boot(): void
+    {
+        // Bind custom model to the 'product' alias
+        Reyhan::useModel('product', CustomProduct::class);
+    }
+}
+```
+
+Or configure it in `config/reyhan.php`:
+
+```php
 return [
     'models' => [
         'product' => \App\Models\CustomProduct::class,
