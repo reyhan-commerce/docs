@@ -22,7 +22,7 @@ Reyhan includes a unified, executable orchestrator script at the root of your pr
 ### 1. `./reyhan version`
 Outputs a structured summary of your backend engine:
 ```text
-🌿 Reyhan Commerce Orchestrator
+Reyhan Commerce Orchestrator
 Framework Core: v1.0.0 (SemVer)
 PHP Version:    8.4.2 (CLI)
 Database:       PostgreSQL 17.0 (Connected)

@@ -6,7 +6,7 @@
 
 ---
 
-## 🌿 Official Nuxt 4 Storefront — Coming Soon
+## Official Nuxt 4 Storefront — Coming Soon
 
 To provide a reference turnkey shopping experience, the Reyhan Commerce team is actively developing an **Official Decoupled Storefront** built on **Nuxt 4**, **Vue 3**, **Tailwind CSS v4**, and **Nuxt UI**.
 

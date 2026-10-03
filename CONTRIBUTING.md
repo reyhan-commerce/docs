@@ -31,7 +31,7 @@ pnpm run build
 
 ---
 
-## 🌿 Pull Requests
+## Pull Requests
 
 1. Fork the repository and create a branch (`git checkout -b docs/add-payment-guide`).
 2. Make your documentation improvements.
