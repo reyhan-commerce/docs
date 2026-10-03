@@ -1,6 +1,8 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 
+const base = process.env.BASE_PATH || '/docs/'
+
 export default withMermaid(
   defineConfig({
   title: 'Reyhan Commerce',
@@ -8,19 +10,20 @@ export default withMermaid(
   description: 'Official Documentation for the Reyhan Commerce Framework — An enterprise full-stack, headless, and modular e-commerce engine.',
   lang: 'en-US',
   dir: 'ltr',
-  base: process.env.BASE_PATH || '/docs/',
+  base: base,
   cleanUrls: true,
   lastUpdated: true,
 
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/icon.svg' }],
-    ['link', { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
-    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' }],
-    ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' }],
-    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }],
-    ['meta', { property: 'og:image', content: '/og-image.png' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}icon.svg` }],
+    ['link', { rel: 'icon', type: 'image/x-icon', href: `${base}favicon.ico` }],
+    ['link', { rel: 'shortcut icon', href: `${base}favicon.ico` }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: `${base}favicon-32x32.png` }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: `${base}favicon-16x16.png` }],
+    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: `${base}apple-touch-icon.png` }],
+    ['meta', { property: 'og:image', content: 'https://reyhan-commerce.github.io/docs/og-image.png' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
-    ['meta', { name: 'twitter:image', content: '/og-image.png' }],
+    ['meta', { name: 'twitter:image', content: 'https://reyhan-commerce.github.io/docs/og-image.png' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     ['link', { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap' }],
@@ -30,7 +33,7 @@ export default withMermaid(
   ],
 
   themeConfig: {
-    siteTitle: '🌿 Reyhan Commerce',
+    siteTitle: 'Reyhan Commerce',
     logo: '/icon.svg',
 
     nav: [

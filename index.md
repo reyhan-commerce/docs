@@ -42,6 +42,10 @@ features:
 
 <div class="vp-doc" style="max-width: 900px; margin: 40px auto;">
 
+<p align="center">
+  <img src="/banner-3d.png" alt="Reyhan Commerce Headless Architecture" style="width: 100%; border-radius: 14px; margin-bottom: 32px; box-shadow: 0 12px 30px rgba(0,0,0,0.3);" />
+</p>
+
 ## Headless Architecture & Decoupled Ecosystem
 
 Reyhan Commerce is an architecturally pure, headless backend e-commerce framework designed for engineering teams building resilient, scalable commerce platforms.
