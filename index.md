@@ -6,7 +6,7 @@ hero:
   text: "The Sovereign Headless E-Commerce Backend Framework"
   tagline: "Engineered for Laravel 13 with 100% strict typing, single-responsibility domain actions, dynamic model extensibility, two-tier concurrency locks, and double-entry financial precision."
   image:
-    src: /icon.svg
+    src: /logo.png
     alt: Reyhan Commerce Backend Framework
   actions:
     - theme: brand
