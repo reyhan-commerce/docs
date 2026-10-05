@@ -1,12 +1,21 @@
-# Overview & Architecture Philosophy
+# Overview & Architecture
 
-**Reyhan Commerce** is a sovereign, enterprise-grade, headless e-commerce backend framework designed to power high-performance, maintainable, and infinitely extensible online stores on **Laravel 13**.
+- [Introduction](#introduction)
+- [Core Architectural Principles](#core-principles)
+    - [Single-Use Actions & Strongly-Typed DTOs](#actions-and-dtos)
+    - [Zero Core Modification (Upgrade Safety)](#zero-core-modification)
+    - [Bring Your Own Database (BYOD)](#byod-infrastructure)
+    - [Unified Central Orchestrator CLI](#unified-cli)
+- [Ecosystem Architecture](#ecosystem-architecture)
+- [Technology Stack Matrix](#technology-stack)
+- [Next Steps](#next-steps)
 
-Unlike monolithic shopping carts or generic starter templates, Reyhan enforces an unyielding **Core vs. User-Land Boundary**. This architectural principle guarantees that developers can customize every aspect of their store—models, business logic, payment drivers, and administrative workflows—without altering core framework files, enabling seamless central updates via standard Composer commands.
+<a name="introduction"></a>
+## Introduction
 
----
+**Reyhan Commerce** is a sovereign, enterprise-scale, headless e-commerce framework designed to power high-performance, maintainable, and infinitely extensible online stores on **Laravel 13** and **PHP 8.4+**.
 
-## 🏛️ Core Pillars of Reyhan
+Unlike monolithic shopping carts or rigid starter kits, Reyhan enforces an unyielding **Core vs. User-Land Boundary**. This architectural foundation guarantees that you can customize every aspect of your store—Eloquent models, business rules, checkout pipelines, payment gateways, and administrative consoles—without ever altering core framework files.
 
 ```mermaid
 graph TD
@@ -26,59 +35,84 @@ graph TD
         Extensions["Modular Plugins in extensions/"]
     end
 
-    subgraph Infrastructure ["BYOD Infrastructure"]
+    subgraph Infrastructure ["Enterprise BYOD Infrastructure"]
         DB[("PostgreSQL 17+ Enterprise DB")]
-        Cache[("Redis 7+ Memory Engine")]
+        Cache[("Redis 7+ Memory & Mutex Engine")]
     end
 
     UserLand --> FrameworkCore
     FrameworkCore --> Infrastructure
 ```
 
-### 1. The Action & DTO Domain Standard
-Business operations in Reyhan are never scattered across fat controllers or tangled model callbacks. Every single commercial operation (e.g., checkout order creation, voucher validation, inventory allocation) is encapsulated in a dedicated `final` **Action** class with a strict `execute()` method and strongly-typed **Data Transfer Objects (DTOs)**. Heavy, unidiomatic Repository patterns are strictly prohibited in favor of native, high-performance Eloquent features.
+---
 
-### 2. Zero Core Modification (Upgrade Safety)
-In Reyhan, the core codebase is installed as an immutable Composer library (`reyhan-commerce/core`). You never edit vendor files. Customizations are achieved via:
-- **Dynamic Model Swapping:** `Reyhan\Core\Support\Reyhan::useModel('product', CustomProduct::class)`
-- **Modular Extensions:** The `extensions/` directory with automatic `module.json` discovery
-- **Pipeline Filters:** Hooking into commercial cart and checkout calculation pipelines
+<a name="core-principles"></a>
+## Core Architectural Principles
 
-### 3. Bring Your Own Database (BYOD)
-Reyhan does not bundle or force a database server installation. Instead, it relies on enterprise infrastructure: **PostgreSQL 17+** (leveraging native `JSONB`, `GIN` indices, and `pg_trgm` fuzzy text matching) and **Redis 7+** (for sub-millisecond cart caching, distributed sessions, and worker queues). Connections are managed cleanly via environment variables.
+<a name="actions-and-dtos"></a>
+### Single-Use Actions & Strongly-Typed DTOs
 
-### 4. Central Orchestrator CLI (`./reyhan` & `reyhan-commerce/installer`)
-The framework ships with an executable orchestrator in the project root that automates development workflows, dependency health diagnostics (`doctor`), database migrations, zero-downtime updates, and local server synchronization.
+In Reyhan, business operations are never scattered across fat controllers or tangled model callbacks. Every single commercial operation (such as placing orders, allocating stock, validating promotional coupons, or verifying bank payments) is encapsulated within a dedicated `final` **Action** class with a strict `execute()` method and strongly-typed **Data Transfer Objects (DTOs)**.
+
+> [!NOTE]  
+> Heavy repository abstractions are strictly prohibited in Reyhan in favor of native, high-performance Eloquent queries, query scopes, and builder methods.
+
+<a name="zero-core-modification"></a>
+### Zero Core Modification (Upgrade Safety)
+
+The core domain engine is distributed as an immutable Composer library (`reyhan-commerce/core`). You never modify vendor files. All store customizations are performed via:
+
+* **[Dynamic Model Swapping](/v1/customization/extending-models):** Subclassing base models and registering them via `Reyhan::useModel()` or `config/reyhan.php`.
+* **[Hookable Pipelines](/v1/customization/business-pipelines):** Injecting custom validation and calculation pipes into checkout and pricing workflows.
+* **[Modular Extensions](/v1/customization/modular-extensions):** Dropping self-contained PSR-4 modules into the `extensions/` directory.
+
+<a name="byod-infrastructure"></a>
+### Bring Your Own Database (BYOD)
+
+Reyhan is engineered for modern cloud infrastructure:
+* **PostgreSQL 17+:** Leverages native `JSONB` for product variant attribute matrices, `GIN` indices for sub-millisecond filtering, and `pg_trgm` fuzzy text search.
+* **Redis 7+:** Powers real-time shopping cart caching, distributed sessions, and atomic Lua script stock reservation mutexes.
+
+<a name="unified-cli"></a>
+### Unified Central Orchestrator CLI
+
+Reyhan includes a root binary (`./reyhan`) and a global scaffolding CLI (`reyhan new`) that automate store creation, dependency health diagnostics (`doctor`), database migrations, zero-downtime updates, and local server synchronization.
 
 ---
 
-## 🛠️ Technology Stack & Architectural Foundation
+<a name="ecosystem-architecture"></a>
+## Ecosystem Architecture
 
-| Domain | Technology / Engine | Architectural Role & Implementation Details |
+The Reyhan ecosystem consists of four decoupled components:
+
+| Repository / Package | Purpose & Role |
+| :--- | :--- |
+| **`reyhan-commerce/core`** | The headless domain engine containing actions, DTOs, contracts, facades, and migrations. |
+| **`reyhan-commerce/reyhan`** | The clean application starter skeleton containing your app's models, routes, configs, and tests. |
+| **`reyhan-commerce/installer`** | The global Composer CLI scaffolder (`reyhan new`) featuring interactive terminal prompts. |
+| **`reyhan-commerce/storefront-nuxt`** | The decoupled official Nuxt 4 storefront with Tailwind 4 and Pinia. |
+
+---
+
+<a name="technology-stack"></a>
+## Technology Stack Matrix
+
+| Domain | Technology | Architectural Role |
 | :--- | :--- | :--- |
-| **Backend Engine** | **PHP 8.4+ & Laravel 13** | Single-responsibility `final` Action classes, strongly-typed DTOs (`spatie/laravel-data`), native Eloquent entities, and queue workers. |
-| **Admin Backoffice** | **Filament 5 & Livewire 3** | High-productivity Persian/English admin console, RBAC permissions (`filament-shield`), and websocket real-time updates. |
-| **Storefront Layer** | **Decoupled (Nuxt 4 Storefront — Coming Soon)** | Headless REST APIs (`/api/v1`) & OpenAPI contracts. Official Nuxt 4 storefront is in active development. |
-| **Primary Database** | **PostgreSQL 17+** | Enterprise JSONB variant matrices, GIN indexing, `pg_trgm` fuzzy text matching, and pessimistic database row-locking (`lockForUpdate`). |
-| **Memory & Mutex Engine** | **Redis 7+** | Sub-millisecond cart caching, distributed sessions, Horizon queues, and self-purging ZSET stock reservation mutexes. |
-| **High-Performance Runtime** | **FrankenPHP Octane & Caddy** | Worker-mode execution for microsecond response times and automated SSL certificate management. |
-| **Testing & Quality Assurance** | **Pest 4** | End-to-end domain feature testing, concurrency assertions, and automated API testing. |
+| **Backend Engine** | **PHP 8.4+ & Laravel 13** | Single-responsibility Actions, typed DTOs, native Eloquent persistence, and queue workers. |
+| **Admin Backoffice** | **Filament v5 & Livewire 3** | High-productivity Persian/English admin console with granular RBAC permissions. |
+| **Primary Database** | **PostgreSQL 17+** | JSONB variant matrices, GIN indices, and pessimistic database row-locking (`lockForUpdate`). |
+| **Cache & Mutex** | **Redis 7+** | Sub-millisecond cart caching, distributed sessions, and self-purging ZSET stock reservation mutexes. |
+| **High-Performance Runtime** | **FrankenPHP Octane & Caddy** | Worker-mode execution for ultra-low latency and automated TLS certificate handling. |
+| **Testing Suite** | **Pest 4** | End-to-end domain feature testing, concurrency assertions, and automated API testing. |
 
 ---
 
-## 🚀 Architectural Feature Matrix
-
-| Domain | Architectural Implementation | Key Benefit |
-| :--- | :--- | :--- |
-| **Authentication** | Complete isolation: OTP SMS for customers, Session/Shield for Staff | Enhanced security, zero-friction customer onboarding |
-| **Inventory Concurrency** | Atomic database transactions with pessimistic & Redis locking | Elimination of overselling during high-traffic flash sales |
-| **Payment Subsystem** | Driver-based unified payment gateway manager | Seamless switching between banking gateways |
-| **Notification Engine** | Multi-driver transactional SMS engine with pattern templates | Reliable, instant OTP and order status alerts |
-| **Text Normalization** | Automated pipeline for character and digit standardization | Clean search indexing and consistent Persian/Arabic data |
-| **Double-Entry Ledger** | Strictly balanced debit and credit ledger service | Absolute financial integrity for wallets, refunds, and payments |
-
----
-
+<a name="next-steps"></a>
 ## Next Steps
 
-To install your first Reyhan Commerce store, proceed to the [Installation Guide](/v1/getting-started/installation).
+Now that you understand the architectural philosophy of Reyhan Commerce, you are ready to scaffold your store:
+
+* [Installation Guide](/v1/getting-started/installation)
+* [Configuration & Environment](/v1/getting-started/configuration)
+* [Directory Structure](/v1/getting-started/directory-structure)

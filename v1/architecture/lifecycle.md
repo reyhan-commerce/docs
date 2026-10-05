@@ -1,73 +1,82 @@
-# Headless Request Lifecycle
+# Request Lifecycle
 
-Understanding how a request flows through the **Reyhan Commerce** backend engine is essential for extending the framework, implementing custom pipelines, and developing modular extensions. As a 100% headless commerce framework, the lifecycle follows a strictly decoupled, highly performant path optimized for **Laravel Octane (FrankenPHP)**, native database transactions, and sub-millisecond in-memory cache operations.
+- [Introduction](#introduction)
+- [Lifecycle Overview Diagram](#lifecycle-overview)
+- [First Steps: Ingress & Octane Server](#ingress-octane)
+- [HTTP Middleware & Normalization](#middleware-normalization)
+- [Thin Controllers & Form Requests](#thin-controllers)
+- [Domain Actions & Dynamic Model Resolution](#domain-actions)
+- [Concurrency, Database Transactions & Ledger](#transactions-and-ledger)
+- [Response Serialization](#response-serialization)
+
+<a name="introduction"></a>
+## Introduction
+
+When using any tool in the "real world", you feel more confident if you understand how that tool works. Application development is no different. When you understand how a request flows through the **Reyhan Commerce** headless engine, everything feels more approachable and extensible.
+
+As a 100% headless commerce framework, Reyhan's request lifecycle follows a decoupled, highly performant path optimized for **Laravel Octane (FrankenPHP)**, native database transactions, and sub-millisecond in-memory cache operations.
 
 ---
 
-## 🏛️ The Complete Headless Request Flow
+<a name="lifecycle-overview"></a>
+## Lifecycle Overview Diagram
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Client as Client Application
+    actor Client as Client / Storefront
     participant Octane as FrankenPHP / Octane
-    participant Middleware as Middleware Pipeline
+    participant Middleware as Normalization & Auth Middleware
     participant Controller as Thin Controller
-    participant DTO as Typed DTO
-    participant Action as Domain Action
-    participant ModelResolver as Model Registry
+    participant Action as Single-Use Action
+    participant ModelRegistry as Model Registry
     participant DB as PostgreSQL 17
-    participant Redis as Redis 7
+    participant Redis as Redis 7 (Horizon)
 
-    Client->>Octane: Dispatches RESTful HTTP JSON Request
-    Octane->>Middleware: Passes Request through Pipeline
-    Middleware->>Middleware: Normalizes Digits and Persian Characters
-    Middleware->>Middleware: Evaluates Sanctum Token and Rate Limits
-    Middleware->>Controller: Routes to Thin Controller
-    Controller->>DTO: Hydrates and Validates Incoming Payload
-    Controller->>Action: Invokes Action execute
-    Action->>ModelResolver: Resolves active entity classes
-    Action->>Redis: Checks and acquires temporary stock reservation
-    Action->>DB: Executes transaction with row lock
-    DB-->>Action: Persists Order, Ledger and Invoice records
-    Action->>Redis: Dispatches Async Jobs to Horizon
-    Action-->>Controller: Returns typed Domain Result
-    Controller-->>Octane: Serializes to JsonResponse via ApiResource
-    Octane-->>Client: Returns HTTP 200 or 201 Response
+    Client->>Octane: HTTP POST /api/v1/checkout/create-order
+    Octane->>Middleware: Execute Middleware Pipeline
+    Middleware->>Middleware: Normalize Persian Digits & Validate Token
+    Middleware->>Controller: Route to Controller
+    Controller->>Action: Invoke execute($user, $dto)
+    Action->>ModelRegistry: Resolve Model (e.g. CustomOrder)
+    Action->>Redis: Check & Acquire Stock Mutex
+    Action->>DB: DB::transaction -> Insert Order (lockForUpdate)
+    DB-->>Action: Order & Ledger Records Persisted
+    Action->>Redis: Dispatch Async SMS & Jobs to Horizon
+    Action-->>Controller: Return CreateOrderResult DTO
+    Controller-->>Octane: Serialize to JSON via ApiResource
+    Octane-->>Client: HTTP 201 Created Response
 ```
 
 ---
 
-## 1. High-Performance Ingress (Laravel Octane & FrankenPHP)
+<a name="ingress-octane"></a>
+## First Steps: Ingress & Octane Server
 
-When a client application (such as the official decoupled Nuxt storefront, a native Flutter/iOS app, or a 3rd-party webhook) sends an HTTP request:
+The entry point for all requests to a Reyhan Commerce application is the `public/index.php` file. All requests are directed to this file by your web server (Caddy, Nginx, or FrankenPHP).
 
-1. **In-Memory Worker Processing:** The request is handled directly in memory by **Laravel Octane** running the **FrankenPHP** server engine, bypassing typical PHP-FPM process bootstrapping overhead.
-2. **State Isolation:** Singleton dependencies and dynamic model registries are maintained safely across requests without memory leaks.
-3. **CORS & Origin Handling:** The request origin is validated against configured stateful domains and allowed API origins.
-
----
-
-## 2. Text & Digit Normalization Pipeline
-
-Every incoming request to `/api/v1/*` passes through the **Reyhan Normalization Pipeline**:
-
-```php
-Reyhan\Core\Pipelines\Normalizer\NormalizeCharactersPipe::class
-Reyhan\Core\Pipelines\Normalizer\NormalizeDigitsPipe::class
-Reyhan\Core\Pipelines\Normalizer\NormalizeZwnjPipe::class
-```
-
-This automated layer ensures that:
-* Arabic characters (`ي`, `ك`) are converted to standard Persian characters (`ی`, `ک`).
-* Persian and Arabic numerals (`۰-۹`, `٠-٩`) in mobile phone numbers, national IDs, postal codes, and quantities are converted into ASCII integers (`0-9`).
-* Zero-width non-joiners (ZWNJ, `\u200C`) and irregular whitespace are sanitized prior to database queries.
+Under **Laravel Octane**, application bootstrapping occurs in worker memory once upon server start. Subsequent HTTP requests execute directly against pre-warmed service providers and container bindings, resulting in microsecond response latencies.
 
 ---
 
-## 3. Thin Controllers & Strongly-Typed DTOs
+<a name="middleware-normalization"></a>
+## HTTP Middleware & Normalization
 
-In adherence to **Farshid's Laravel Constitution**, controllers in Reyhan are strictly thin:
+Every incoming request passes through global and route-specific middleware pipelines:
+
+1. **CORS & Origin Validation:** Verifies stateful domain origins against `CORS_ALLOWED_ORIGINS` and `SANCTUM_STATEFUL_DOMAINS`.
+2. **Text & Digit Normalization:** Automatically standardizes input characters:
+   * Converts Persian and Arabic numerals (`۰-۹`, `٠-٩`) in mobile numbers, national IDs, and quantities into ASCII digits (`0-9`).
+   * Unifies Arabic characters (`ي`, `ك`) to Persian (`ی`, `ک`).
+   * Sanitizes Zero-Width Non-Joiners (ZWNJ).
+3. **Authentication & Rate Limiting:** Evaluates customer Sanctum Bearer tokens and OTP attempt rate limits.
+
+---
+
+<a name="thin-controllers"></a>
+## Thin Controllers & Form Requests
+
+In adherence to clean architecture principles, controllers in Reyhan are strictly thin:
 - Controllers **never** execute raw database queries.
 - Controllers **never** contain inline business calculations or order placement logic.
 - Incoming payloads are validated via Form Requests and cast into strongly-typed **Data Transfer Objects (DTOs)**:
@@ -78,25 +87,37 @@ public function store(CreateOrderRequest $request, CreateOrderAction $action): J
     $dto = CreateOrderData::from($request->validated());
     $result = $action->execute($request->user(), $dto);
 
-    return OrderResource::make($result->order)->response()->setStatusCode(201);
+    return OrderResource::make($result->order)
+        ->response()
+        ->setStatusCode(201);
 }
 ```
 
 ---
 
-## 4. Single-Responsibility Actions & Atomic Boundaries
+<a name="domain-actions"></a>
+## Domain Actions & Dynamic Model Resolution
 
-Business operations are encapsulated in `final` Action classes under `Reyhan\Core\Actions` (or `App\Actions` in userland). When an Action executes:
+Business logic is encapsulated entirely within `final` Action classes under `Reyhan\Core\Actions` (or `app/Actions` in your application). When an Action executes:
 
-1. **Dynamic Model Resolution:** Resolves model classes through `Reyhan::model('product')`, guaranteeing that userland model customizations and extra columns are automatically respected.
-2. **Two-Tier Concurrency Protection:**
-   - **Tier 1:** Queries Redis 7 sorted sets for temporary atomic stock reservations.
-   - **Tier 2:** Enters `DB::transaction()` and applies PostgreSQL pessimistic row locks (`lockForUpdate()`) to commit permanent stock decrements without race conditions.
-3. **Double-Entry Ledger Balancing:** Monetary mutations (invoices, refunds, customer wallets) are audited and posted to the double-entry accounting ledger (`Reyhan::ledger()`).
-4. **Asynchronous Job Dispatch:** Long-running operations (transactional SMS dispatch, webhooks, invoice generation) are pushed to Redis queues managed by **Laravel Horizon**.
+1. **Dynamic Model Resolution:** Resolves model classes through `Reyhan::model('product')`, guaranteeing that custom models, attributes, and relationships are respected automatically.
+2. **Pipeline Execution:** Passes payloads through configured domain pipelines (such as `checkout` or `pricing`).
 
 ---
 
-## 5. API Resource Serialization
+<a name="transactions-and-ledger"></a>
+## Concurrency, Database Transactions & Ledger
 
-The Action returns a typed result object or model back to the controller, which serializes the payload using Laravel API Resources (`OrderResource`, `ProductResource`, `CartResource`). The serialized JSON response matches the OpenAPI specification rendered at `/docs/api`.
+Reyhan implements a battle-tested **Two-Tier Concurrency Architecture**:
+
+1. **Tier 1 (Redis 7 Sorted Sets):** Acquires temporary atomic stock reservations during checkout.
+2. **Tier 2 (PostgreSQL Pessimistic Locking):** Executes database mutations within `DB::transaction()` using `lockForUpdate()` to prevent double-spending or overselling.
+3. **Double-Entry Ledger:** Posts balanced financial debit and credit transactions for wallets, invoices, and refunds.
+4. **Queue Dispatch:** Pushes long-running operations (SMS alerts, invoice PDFs, webhooks) to background queues managed by **Laravel Horizon**.
+
+---
+
+<a name="response-serialization"></a>
+## Response Serialization
+
+The Action returns a typed result DTO back to the controller. The controller serializes the payload using Laravel API Resources (`OrderResource`, `ProductResource`, `CartResource`), producing a standard JSON response matching the OpenAPI specification at `/docs/api`.

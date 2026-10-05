@@ -1,91 +1,175 @@
-# Installation & Setup
+# Installation
 
-Getting started with **Reyhan Commerce** is designed to be frictionless for PHP and Laravel developers. You can either scaffold a new store using the global **Composer CLI Installer** (`reyhan new`), create a project via `composer create-project`, or set up an existing workspace using the central orchestrator `./reyhan`.
+- [Introduction](#introduction)
+- [Server Requirements](#server-requirements)
+- [Creating a Reyhan Application](#creating-a-reyhan-application)
+    - [Option 1: The Reyhan Installer (Recommended)](#the-reyhan-installer)
+    - [Option 2: Via Composer Create-Project](#via-composer-create-project)
+- [Initial Configuration & Database Migration](#initial-configuration)
+- [Running the Local Development Server](#local-development-server)
+- [Verifying System Health (`doctor`)](#system-health-doctor)
+- [Connecting a Storefront](#connecting-a-storefront)
+
+<a name="introduction"></a>
+## Introduction
+
+Getting started with **Reyhan Commerce** is designed to be frictionless for PHP and Laravel developers. You can either scaffold a new store using the global **Composer CLI Installer** (`reyhan new`), create a project via `composer create-project`, or launch development using the root orchestrator `./reyhan`.
 
 ---
 
-## 1. System Requirements
+<a name="server-requirements"></a>
+## Server Requirements
 
-Reyhan's headless engine requires **zero Node.js dependencies** to run the backend and administrative backoffice:
+The Reyhan Commerce backend and Filament administration panel require **zero Node.js dependencies** to run:
 
-* **PHP:** `8.3` or `8.4+` (Required extensions: `pdo_pgsql`, `redis`, `intl`, `gd`, `bcmath`, `curl`, `pcntl`)
+* **PHP:** `8.3` or `8.4+`
+  * Required extensions: `pdo_pgsql` (or `pdo_mysql`), `redis`, `intl`, `gd`, `bcmath`, `curl`, `pcntl`, `mbstring`, `xml`
 * **Composer:** `2.x+`
-* **PostgreSQL:** `17.x` (Mandatory for JSONB variant matrices, GIN indices, and `pg_trgm` fuzzy text search)
-* **Redis:** `7.x+` (Required default driver for Cache, Sessions, Queues, and atomic inventory mutexes)
+* **PostgreSQL:** `17.x` (Recommended for native JSONB attribute matrices, GIN indices, and `pg_trgm` fuzzy search)
+* **Redis:** `7.x+` (Default driver for Cart caching, distributed sessions, and atomic inventory mutexes)
 
-::: tip Automated Health Check
-Run `./reyhan doctor` or `php artisan reyhan:doctor` at any time to verify system requirements, PHP extensions, and database connections automatically.
-:::
+> [!TIP]  
+> You can run `./reyhan doctor` or `php artisan reyhan:doctor` at any time to verify system requirements, PHP extensions, and database connections automatically.
 
 ---
 
-## 2. Option A: The Reyhan Global CLI Installer (Recommended)
+<a name="creating-a-reyhan-application"></a>
+## Creating a Reyhan Application
 
-Just like the official Laravel Installer, install the Reyhan CLI globally via Composer:
+<a name="the-reyhan-installer"></a>
+### Option 1: The Reyhan Installer (Recommended)
+
+First, install the Reyhan CLI installer globally via Composer:
 
 ```bash
 composer global require reyhan-commerce/installer
 ```
 
-Ensure your global Composer `bin` directory is in your `$PATH` (`~/.config/composer/vendor/bin` or `~/.composer/vendor/bin`).
+Ensure your global Composer `bin` directory is in your system's `$PATH` variable (`~/.config/composer/vendor/bin` or `~/.composer/vendor/bin`).
 
-Now scaffold a new store with an interactive terminal UI powered by **Laravel Prompts**:
+Once installed, use the `reyhan new` command to scaffold a new store:
 
 ```bash
 reyhan new my-store
 ```
 
-The installer will ask:
-1. **Database engine**: PostgreSQL 17+ (recommended), MySQL, or SQLite.
-2. **Catalog seeding**: Automatically run migrations and seed provinces, cities, cosmetics/fashion categories, and demo products.
+The interactive installer (powered by Laravel Prompts) will guide you through:
+1. **Database engine selection:** PostgreSQL 17+ (Recommended), MySQL 8.0+, or SQLite.
+2. **Catalog seeding:** Automatically running database migrations and seeding Iranian provinces, cities, categories, and sample products.
 
-### Non-Interactive / Automation Flags
+```text
+  ██████╗ ███████╗██╗   ██╗██╗  ██╗ █████╗ ███╗   ██╗
+  ██╔══██╗██╔════╝╚██╗ ██╔╝██║  ██║██╔══██╗████╗  ██║
+  ██████╔╝█████╗   ╚████╔╝ ███████║███████║██╔██╗ ██║
+  ██╔══██╗██╔══╝    ╚██╔╝  ██╔══██║██╔══██║██║╚██╗██║
+  ██║  ██║███████╗   ██║   ██║  ██║██║  ██║██║ ╚████║
+  ╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝
 
-For automated CI/CD environments and Docker provisioning:
+  Reyhan Commerce — Modern Headless E-Commerce Framework
+
+  ? Select primary database engine:
+  ❯ PostgreSQL 17+ (Recommended: Native JSONB matrices & pg_trgm)
+    MySQL 8.0+ / MariaDB
+    SQLite (Local development & testing)
+
+  ? Seed initial Iranian commerce catalog (provinces, categories, sample products)? (yes/no) [yes]:
+  ❯ yes
+```
+
+#### Non-Interactive / CI/CD Automation Flags
+
+For automated CI/CD pipelines, Docker provisioning, or rapid scripting:
 
 ```bash
-# Provision with PostgreSQL and automatic demo catalog seed
+# Provision PostgreSQL store with demo catalog seeding
 reyhan new my-store --pgsql --seed --no-interaction
 
 # Rapid local prototyping with SQLite
 reyhan new test-store --sqlite --seed --no-interaction
 ```
 
----
+<a name="via-composer-create-project"></a>
+### Option 2: Via Composer Create-Project
 
-## 3. Option B: Direct `composer create-project`
-
-If you prefer not to install global CLI tools, you can create a new project in one command:
+Alternatively, you can create a project using Composer directly:
 
 ```bash
 composer create-project reyhan-commerce/reyhan my-store
 ```
 
-Then enter the project and start development:
+---
+
+<a name="initial-configuration"></a>
+## Initial Configuration & Database Migration
+
+Navigate to your newly created store directory:
 
 ```bash
 cd my-store
+```
+
+The installer automatically configures your `.env` file and generates your application encryption key (`APP_KEY`).
+
+If you need to run or re-run database migrations and demo seeders manually:
+
+```bash
 php artisan migrate --seed
-php artisan serve
 ```
 
 ---
 
-## 4. Admin Panel & API Verification
+<a name="local-development-server"></a>
+## Running the Local Development Server
 
-Once launched, your headless store is immediately operational out of the box:
+You can start the local development server using the unified Reyhan CLI or standard Artisan:
 
-* **Filament Admin Backoffice:** `http://localhost:8000/admin` (Default credentials: `admin@reyhan.test` / `password`)
-* **Interactive OpenAPI Reference:** `http://localhost:8000/docs/api` (Rendered via Scalar API Reference)
-* **Health Diagnostics:** `php artisan reyhan:doctor`
+```bash
+./reyhan dev
+# or
+php artisan serve
+```
+
+Once started, the following services are available immediately:
+
+* **Admin Backoffice:** `http://localhost:8000/admin`
+  * Default staff credentials: `admin@reyhan.test` / `password`
+* **Interactive OpenAPI Reference:** `http://localhost:8000/docs/api` (Rendered via Scramble / Scalar)
+* **RESTful Headless API Base:** `http://localhost:8000/api/v1`
 
 ---
 
-## 5. Connecting a Frontend Storefront
+<a name="system-health-doctor"></a>
+## Verifying System Health (`doctor`)
 
-Reyhan Commerce is completely headless. The backend provides RESTful JSON APIs and WebSocket channels that can power any presentation layer:
+To diagnose your environment, verify PostgreSQL connectivity, check Redis latency, and inspect runtime extensions:
 
-* **Official Nuxt 4 Storefront (Decoupled Repo):** `reyhan-commerce/storefront-nuxt`
-* **Mobile Applications:** Flutter, React Native, or iOS/Android native apps
-* **Next.js / Svelte / Remix:** Connect using standard REST APIs and `@nuxtjs/sitemap` endpoints
-* **Telegram Mini Apps:** Native mobile shopping via Telegram WebApp SDK
+```bash
+./reyhan doctor
+# or
+php artisan reyhan:doctor
+```
+
+```text
+  Reyhan Framework Health & Environment Doctor
+
+  ✔ PHP Version (8.4.2)
+  ✔ PostgreSQL 17 Connection (Latency: 0.8ms)
+  ✔ Redis 7 Connection (Latency: 0.3ms)
+  ✔ BCMath Extension
+  ✔ Intl Extension (fa_IR locale support)
+  ✔ Storage & Cache Permissions
+
+  Result: All systems operational. Your environment is production-ready.
+```
+
+---
+
+<a name="connecting-a-storefront"></a>
+## Connecting a Storefront
+
+Reyhan operates as a decoupled headless backend engine. You can connect any frontend presentation layer:
+
+* **Official Nuxt 4 Storefront:** Maintained in the dedicated `reyhan-commerce/storefront-nuxt` repository.
+* **Mobile Apps:** Flutter, React Native, or Native iOS/Android apps via the REST API.
+* **Modern Web Frameworks:** Next.js, SvelteKit, Astro, or Remix.
+* **Telegram Mini Apps:** Native mobile storefronts embedded directly in Telegram bots.

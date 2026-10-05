@@ -1,10 +1,24 @@
 # Core vs. User-Land Boundary
 
-The core strength of **Reyhan Commerce** is the unyielding boundary between the **Framework Core Package** and **User-Land Store Applications**.
+- [Introduction](#introduction)
+- [The Boundary Architecture](#boundary-architecture)
+- [The Golden Rules of Reyhan Development](#golden-rules)
+- [How Customizations Stay Intact](#how-customizations-stay-intact)
+- [The Upgrade Safety Guarantee](#upgrade-safety-guarantee)
 
-In traditional e-commerce projects, developers directly modify core controllers, database seeders, or vendor files. When the parent framework publishes a security patch or a major feature update, running `composer update` or `git pull` results in merge conflicts, broken logic, and failed deployments.
+<a name="introduction"></a>
+## Introduction
 
-Reyhan permanently eliminates this via clean Composer packaging and dynamic runtime binding:
+The primary architectural strength of **Reyhan Commerce** is the clean, unyielding separation between the **Framework Core Package** (`reyhan-commerce/core`) and your **User-Land Store Application** (`app/`, `config/`, `extensions/`).
+
+In legacy e-commerce software, developers routinely modify core controllers, database seeders, or vendor files. When upstream maintainers release security patches or major feature updates, running updates results in merge conflicts, broken logic, and costly manual refactors.
+
+Reyhan permanently eliminates this problem through clean Composer encapsulation, interface contracts, and dynamic runtime bindings.
+
+---
+
+<a name="boundary-architecture"></a>
+## The Boundary Architecture
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -19,8 +33,8 @@ Reyhan permanently eliminates this via clean Composer packaging and dynamic runt
                                ▼
 ┌─────────────────────────────────────────────────────────────┐
 │            User-Land Application (Your Store Code)          │
-│  - app/Providers/AppServiceProvider.php (Reyhan::useModel)  │
-│  - extensions/ (Custom domain plugins & drivers)            │
+│  - app/Models/ (Custom models via Reyhan::useModel)         │
+│  - extensions/ (Custom modular plugins & drivers)           │
 │  - app/Actions/ (Custom user-land business workflows)       │
 │  - config/reyhan.php (Runtime configuration overrides)      │
 └─────────────────────────────────────────────────────────────┘
@@ -28,33 +42,50 @@ Reyhan permanently eliminates this via clean Composer packaging and dynamic runt
 
 ---
 
+<a name="golden-rules"></a>
 ## The Golden Rules of Reyhan Development
 
+To ensure your application remains clean, maintainable, and continuously upgradable, adhere to the following rules:
+
 ### Rule 1: Never Touch Vendor Files
-Never edit files inside `vendor/reyhan-commerce/core/`. If you need to:
-* **Add custom columns/methods to the Product model:** Extend the base model in `app/Models/CustomProduct.php` and register it via `Reyhan::useModel('product', CustomProduct::class)`.
-* **Add a custom payment driver:** Extend `Reyhan\Core\Contracts\PaymentDriver` and register it in `config/reyhan.php`.
-* **Add specialized business logic:** Create a single-responsibility Action in `app/Actions/`.
-* **Add modular features:** Place them in `extensions/your-extension/` with a `module.json` manifest.
+Never edit files inside `vendor/reyhan-commerce/core/`. When you need to customize behavior:
+
+* **Add custom columns or methods to models:** Extend the base model in `app/Models/` and register it in `config/reyhan.php`. Read the [Extending Models Guide](/v1/customization/extending-models).
+* **Add a custom payment driver:** Implement `GatewayDriverContract` and register it via `Payment::extend()`. Read the [Payment Gateways Guide](/v1/customization/payment-gateways).
+* **Add specialized business logic:** Create a single-responsibility Action class in `app/Actions/`.
+* **Add modular features:** Place them in `extensions/{plugin-name}/`. Read the [Modular Extensions Guide](/v1/customization/modular-extensions).
 
 ### Rule 2: Decoupled Storefront Independence
-The frontend storefront (`reyhan-commerce/storefront-nuxt`) is fully decoupled:
-* It consumes the backend strictly through standard RESTful JSON APIs and WebSocket channels.
-* UI customizations in Nuxt never risk breaking the Laravel backend or database schema.
+The frontend presentation layer (such as the official Nuxt 4 storefront) is fully decoupled. It communicates with the backend exclusively through RESTful JSON APIs and WebSocket channels. Frontend updates never risk destabilizing the backend business logic or database schema.
 
 ---
 
-## Upgrade Safety Guarantee
+<a name="how-customizations-stay-intact"></a>
+## How Customizations Stay Intact
 
-Because custom business logic lives in standard user-land directories (`app/`, `extensions/`, `config/`), upgrading the framework engine is as simple as:
+Because all core services resolve classes through dynamic registries (`Reyhan::model()`, `Reyhan::payment()`, `Pipeline::through()`), your custom classes seamlessly intercept all domain traffic:
+
+```php
+// Your custom logic executes in place of core defaults
+$orderModel = Reyhan::model('order'); // Resolves App\Models\CustomOrder
+```
+
+---
+
+<a name="upgrade-safety-guarantee"></a>
+## The Upgrade Safety Guarantee
+
+Upgrading your store's core engine is as simple as running:
 
 ```bash
+./reyhan update
+# or
 composer update reyhan-commerce/core --with-all-dependencies
 php artisan migrate --force
 php artisan reyhan:doctor
 ```
 
 This guarantees:
-1. Zero merge conflicts in vendor code.
-2. Safe, incremental schema migrations.
-3. Your extended models and plugins continue working seamlessly.
+1. **Zero Merge Conflicts:** Core framework improvements are pulled cleanly without touching your repository's files.
+2. **Deterministic Migrations:** Database schema updates execute idempotently.
+3. **Continuous Compatibility:** Your custom models, pipelines, and extensions remain completely intact.

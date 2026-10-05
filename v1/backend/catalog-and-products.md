@@ -1,17 +1,30 @@
 # Catalog, Products & Variants
 
-The catalog engine in **Reyhan Commerce** provides a high-performance relational structure capable of managing simple goods, multi-attribute configurable products (e.g., color, size, volume), dynamic pricing matrices, and localized media galleries.
+- [Introduction](#introduction)
+- [Relational Schema Architecture](#schema-architecture)
+- [Dynamic Variant Matrices (PostgreSQL JSONB)](#dynamic-matrices)
+- [Managing Products & Variants via Eloquent](#eloquent-usage)
+- [Category Trees & Hierarchies](#category-trees)
+- [Persian Slugging & SEO Metadata](#slugging-and-seo)
+
+<a name="introduction"></a>
+## Introduction
+
+The catalog engine in **Reyhan Commerce** provides a high-performance relational structure capable of handling simple goods, multi-attribute configurable products (e.g., color, size, volume), dynamic pricing matrices, and localized media galleries.
+
+Instead of adopting slow EAV (Entity-Attribute-Value) anti-patterns with dozen-table SQL joins, Reyhan leverages **PostgreSQL 17 JSONB** with **GIN indexing** for blazing-fast attribute filtering and variant lookup.
 
 ---
 
-## 1. Relational Schema Architecture
+<a name="schema-architecture"></a>
+## Relational Schema Architecture
 
 ```mermaid
 erDiagram
     PRODUCT ||--o{ PRODUCT_VARIANT : "has many"
-    PRODUCT ||--o{ CATEGORY : "categorized by"
-    PRODUCT ||--o{ ATTRIBUTE : "defined by"
-    PRODUCT_VARIANT ||--o{ STOCK_AUDIT : "tracked in"
+    PRODUCT ||--o{ CATEGORY : "belongs to many"
+    PRODUCT ||--o{ BRAND : "belongs to"
+    PRODUCT_VARIANT ||--o{ INVENTORY_LOG : "audited by"
 
     PRODUCT {
         bigint id PK
@@ -20,7 +33,6 @@ erDiagram
         text description
         jsonb metadata
         boolean is_active
-        timestamps created_at
     }
 
     PRODUCT_VARIANT {
@@ -29,35 +41,36 @@ erDiagram
         string sku UK
         bigint price
         bigint compare_at_price
-        integer stock_quantity
+        integer stock
         jsonb attribute_values
     }
 ```
 
 ---
 
-## 2. Dynamic Attribute Matrix (JSONB)
+<a name="dynamic-matrices"></a>
+## Dynamic Variant Matrices (PostgreSQL JSONB)
 
-Instead of relying on rigid, slow EAV (Entity-Attribute-Value) anti-patterns with dozen-table joins, Reyhan leverages PostgreSQL's native `JSONB` with `GIN` indices for product variant attributes:
+Product variants store their specific attributes in an indexed `attribute_values` JSONB column:
 
 ```json
 {
-  "attributes": {
-    "color": {
-      "label": "Ruby Red",
-      "hex": "#E11D48"
-    },
-    "volume": {
-      "label": "50ml",
-      "unit": "ml"
-    }
+  "color": {
+    "name": "قرمز یاقوتی",
+    "hex": "#E11D48"
+  },
+  "volume": {
+    "name": "۵۰ میلی‌لیتر",
+    "unit": "ml",
+    "value": 50
   }
 }
 ```
 
-This ensures:
-1. **Zero Schema Migrations for New Attributes:** Store owners can define arbitrary new attributes (e.g., Shade, Finish, Fabric, Size) directly from the admin panel.
-2. **Sub-millisecond Filtering:** Indexed querying directly inside PostgreSQL:
+### Key Advantages
+
+1. **Zero Database Migrations for New Attributes:** Store owners can dynamically define new attributes (e.g., Shade, Finish, Fabric, Size) from the Filament admin panel without altering database tables.
+2. **Sub-Millisecond Querying:** GIN-indexed querying enables instant faceted search in PostgreSQL:
    ```sql
    SELECT * FROM product_variants 
    WHERE attribute_values->'color'->>'hex' = '#E11D48';
@@ -65,9 +78,53 @@ This ensures:
 
 ---
 
-## 3. SEO-Optimized Slugging
+<a name="eloquent-usage"></a>
+## Managing Products & Variants via Eloquent
 
-Reyhan includes automated, Persian-compatible unique slug generation:
-* Converts spaces and special punctuation cleanly.
-* Handles duplicate titles automatically by appending unique numerical sequences.
-* Integrates with `@nuxtjs/seo` and `Schema.org` Product structured data out of the box.
+You can query products and eager-load variants fluently:
+
+```php
+use Reyhan\Core\Models\Product;
+
+// Query active products with available variants
+$products = Product::query()
+    ->where('is_active', true)
+    ->with(['variants' => fn ($q) => $q->where('stock', '>', 0)])
+    ->paginate(24);
+```
+
+### Accessing Variant Attributes
+
+```php
+$variant = $product->variants->first();
+
+// Access strongly typed attribute values
+$colorName = $variant->attribute_values['color']['name'] ?? null;
+```
+
+---
+
+<a name="category-trees"></a>
+## Category Trees & Hierarchies
+
+Reyhan features nested tree categories powered by `alareqi/filament-tree`:
+
+```php
+use Reyhan\Core\Models\Category;
+
+// Retrieve root categories with descendants
+$categoryTree = Category::query()
+    ->whereNull('parent_id')
+    ->with('children.children')
+    ->get();
+```
+
+---
+
+<a name="slugging-and-seo"></a>
+## Persian Slugging & SEO Metadata
+
+Reyhan includes automated Persian-compatible unique slug generation and OpenGraph metadata generation:
+
+* Automatically cleans irregular Persian characters and whitespace.
+* Generates SEO Schema.org `Product` structured data JSON-LD out of the box for search engine indexing.

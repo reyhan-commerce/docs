@@ -1,108 +1,119 @@
-# Directory Anatomy
+# Directory Structure
 
-A Reyhan Commerce deployment is structured into clean, decoupled repositories and domains. The consumer store skeleton (`reyhan-commerce/reyhan`) cleanly separates application customizations from the immutable framework core (`reyhan-commerce/core`).
+- [Introduction](#introduction)
+- [The Root Directory](#the-root-directory)
+- [The App Directory](#the-app-directory)
+- [The Config Directory](#the-config-directory)
+- [The Database Directory](#the-database-directory)
+- [The Extensions Directory](#the-extensions-directory)
+- [The Routes Directory](#the-routes-directory)
+- [The Storage Directory](#the-storage-directory)
+- [The Tests Directory](#the-tests-directory)
 
----
+<a name="introduction"></a>
+## Introduction
 
-## 🏛️ Ecosystem Architecture
-
-The Reyhan Commerce ecosystem consists of 5 dedicated repositories:
-
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                 reyhan-commerce/installer                    │
-│  Composer Global CLI Scaffolder: `reyhan new my-store`      │
-└──────────────────────────────┬──────────────────────────────┘
-                               │ provisions
-                               ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   reyhan-commerce/reyhan                    │
-│  Turnkey Application Skeleton (Standard Laravel 13 layout)  │
-│  Contains app/, config/, database/, extensions/             │
-└──────────────────────────────┬──────────────────────────────┘
-                               │ requires via Composer
-                               ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    reyhan-commerce/core                     │
-│  Sovereign Commerce Engine Package (Models, Facades,        │
-│  Pipelines, Double-Entry Ledger, Filament Admin Plugin)     │
-└─────────────────────────────────────────────────────────────┘
-                               ▲
-                               │ RESTful API / WebSockets
-                               ▼
-┌─────────────────────────────────────────────────────────────┐
-│               reyhan-commerce/storefront-nuxt               │
-│  Decoupled Nuxt 4 Storefront (Tailwind 4, Pinia, Nuxt UI)   │
-└─────────────────────────────────────────────────────────────┘
-```
+The default Reyhan Commerce application structure is intended to provide a great starting point for both small and large e-commerce applications. It adheres to the standard Laravel 13 directory layout while adding specialized extension points for headless commerce.
 
 ---
 
-## 📁 Store Application Directory Structure (`reyhan-commerce/reyhan`)
+<a name="the-root-directory"></a>
+## The Root Directory
 
-When you create a new store via `reyhan new my-store` or `composer create-project reyhan-commerce/reyhan`, the generated application has the familiar, clean structure of a standard Laravel application:
+The root of your application contains essential project files and configuration:
 
 ```text
 my-store/
-├── app/
-│   ├── Actions/                     # User-land domain action classes
-│   ├── Data/                        # Strongly-typed Data Transfer Objects (DTOs)
-│   ├── Models/                      # Extended custom Eloquent models
-│   └── Providers/
-│       ├── AppServiceProvider.php   # Model bindings (Reyhan::useModel)
-│       └── Filament/
-│           └── AdminPanelProvider.php # Filament admin panel configuration
-├── config/
-│   └── reyhan.php                   # Core model registries, gateways & pipeline configs
-├── database/
-│   ├── migrations/                  # User-land migrations
-│   └── seeders/                     # Initial catalog & store demo seeders
-├── extensions/                      # Modular plugins (auto-discovered via module.json)
-├── routes/
-│   ├── api.php                      # Custom user-land API endpoints
-│   └── web.php
-├── vendor/
-│   └── reyhan-commerce/
-│       └── core/                    # Immutable framework library
-├── .env.example
-├── artisan                          # Laravel Artisan CLI
-└── composer.json                    # Declares dependency on reyhan-commerce/core
+├── app/                  # Application code, models, actions, and providers
+├── bootstrap/            # Framework bootstrapper and cache files
+├── config/               # Application configuration files
+├── database/             # Migrations, model factories, and seeders
+├── extensions/           # Modular drop-in plugins (PSR-4 auto-discovered)
+├── public/               # Web server document root (index.php, assets)
+├── resources/            # Views, localization files, and CSS/JS
+├── routes/               # Route definitions (api.php, web.php, console.php)
+├── storage/              # File uploads, session data, and logs
+├── tests/                # Automated Pest 4 and PHPUnit test suites
+├── vendor/               # Composer dependencies (including reyhan-commerce/core)
+├── .env                  # Environment configuration file
+├── artisan               # Laravel command-line interface
+├── composer.json         # Application dependencies manifest
+└── reyhan                # Unified Reyhan CLI orchestrator binary
 ```
 
 ---
 
-## 🛍️ Decoupled Storefront Directory Structure (`storefront-nuxt`)
+<a name="the-app-directory"></a>
+## The App Directory
 
-The official reactive frontend is completely decoupled in its own repository:
+The `app` directory contains the core code of your application:
+
+* **`Actions/`**: Contains single-responsibility Action classes that execute your store's business logic.
+* **`DTOs/` (or `Data/`)**: Contains strongly-typed Data Transfer Objects used across actions and API endpoints.
+* **`Filament/`**: Contains custom administrative resources, pages, and analytical widgets for the backoffice console.
+* **`Models/`**: Contains your Eloquent model classes (including custom models subclassed from `Reyhan\Core\Models\*`).
+* **`Pipelines/`**: Contains custom pipe classes for the `checkout`, `pricing`, and `inventory` channels.
+* **`Providers/`**: Contains the application service providers, including `AppServiceProvider` and `Filament\AdminPanelProvider`.
+
+---
+
+<a name="the-config-directory"></a>
+## The Config Directory
+
+The `config` directory contains all of your application's configuration files:
+
+* **`reyhan.php`**: The central configuration for model swapping registries, commercial pipelines, and store defaults.
+* **`payment.php`**: Configuration for banking gateways and transaction drivers.
+* **`sms.php`**: Configuration for SMS notification gateways and OTP fast-service patterns.
+* **`database.php`**: PostgreSQL, MySQL, Redis, and connection pools.
+
+---
+
+<a name="the-database-directory"></a>
+## The Database Directory
+
+The `database` directory contains your database migrations, model factories, and seeds:
+
+* **`migrations/`**: User-land migrations for adding custom columns or new tables. Core framework migrations are loaded automatically from the core package.
+* **`seeders/`**: Initial catalog seeders for provinces, cities, categories, and demo products.
+
+---
+
+<a name="the-extensions-directory"></a>
+## The Extensions Directory
+
+The `extensions` directory is designed for modular, self-contained packages. Extensions placed inside this directory are auto-discovered at runtime via dynamic PSR-4 autoloading:
 
 ```text
-storefront-nuxt/
-├── app/
-│   ├── assets/                      # Tailwind CSS v4 stylesheets & Vazirmatn font
-│   ├── components/                  # Nuxt UI components (Cart, Catalog, Product, Checkout)
-│   ├── composables/                 # Central useApi, useCart, usePersian
-│   ├── layouts/                     # Layout templates (default, auth, minimal)
-│   ├── middleware/                  # Sanctum route auth guards
-│   ├── pages/                       # Dynamic SSR routes (index, products, checkout, profile)
-│   └── stores/                      # Pinia reactive state (auth, cart, catalog)
-├── nuxt.config.ts                   # Nuxt 4 configuration, SEO & runtime env
-├── package.json
-└── tsconfig.json
+extensions/
+└── my-carrier-plugin/
+    ├── composer.json
+    ├── src/
+    └── routes/
 ```
+
+> [!TIP]  
+> Read the [Modular Extensions Guide](/v1/customization/modular-extensions) for details on developing and distributing plugins.
 
 ---
 
-## 🔒 Architectural Boundaries
+<a name="the-routes-directory"></a>
+## The Routes Directory
 
-### 1. `vendor/reyhan-commerce/core` (Immutable Engine)
-The framework engine is installed as a Composer dependency. It manages core migrations, API route definitions (`/api/v1/*`), domain facades, and the Filament admin plugin. You never edit code in `vendor/`.
+* **`api.php`**: Custom REST API endpoints for your application. Core commerce endpoints (`/api/v1/*`) are registered automatically by the core package.
+* **`web.php`**: Web routes (such as redirecting root traffic to `/admin` or rendering signed shipping labels).
+* **`console.php`**: Custom Artisan console commands and scheduled tasks.
 
-### 2. `extensions/` (The Extension & Plugin Directory)
-Custom modular extensions (such as specialized payment gateways, CRM synchronizers, or custom ERP exports) are placed in `extensions/` and automatically discovered.
+---
 
-### 3. `Reyhan::useModel()` (Dynamic Model Extensibility)
-If your store requires custom attributes on `Product`, `Order`, or `User`, extend the base model in `app/Models/` and register it in `AppServiceProvider`:
-```php
-Reyhan::useModel('product', \App\Models\CustomProduct::class);
-```
-Every relationship, facade, and pipeline inside Reyhan Core will resolve your extended model.
+<a name="the-storage-directory"></a>
+## The Storage Directory
+
+The `storage` directory contains your compiled Blade templates, file-based sessions, file caches, and log files generated by the framework.
+
+---
+
+<a name="the-tests-directory"></a>
+## The Tests Directory
+
+The `tests` directory contains your automated tests. Out of the box, Reyhan includes **Pest 4** unit and feature test examples for commerce workflows and architecture validation.

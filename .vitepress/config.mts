@@ -39,10 +39,10 @@ export default withMermaid(
     nav: [
       { text: 'Getting Started', link: '/v1/getting-started/overview' },
       { text: 'Architecture', link: '/v1/architecture/lifecycle' },
+      { text: 'Customization', link: '/v1/customization/overview' },
       { text: 'Backend Domain', link: '/v1/backend/domain-facades' },
       { text: 'Extensions', link: '/v1/extensions/plugin-architecture' },
       { text: 'CLI Reference', link: '/v1/cli/cli-reference' },
-      { text: 'Storefront (Coming Soon)', link: '/v1/storefront/official-storefront' },
       {
         text: 'v1.x (Stable)',
         items: [
@@ -74,6 +74,21 @@ export default withMermaid(
             { text: 'Core vs. User Land Boundary', link: '/v1/architecture/core-vs-userland' },
             { text: 'Dynamic Model Swapping', link: '/v1/architecture/model-swapping' },
             { text: 'Multi-Auth & Guard Boundaries', link: '/v1/architecture/multi-auth-guards' }
+          ]
+        },
+        {
+          text: '🔌 Customization & Overrides',
+          collapsed: false,
+          items: [
+            { text: 'Extensibility Overview', link: '/v1/customization/overview' },
+            { text: 'Extending Models', link: '/v1/customization/extending-models' },
+            { text: 'Business Pipelines', link: '/v1/customization/business-pipelines' },
+            { text: 'Custom Payment Gateways', link: '/v1/customization/payment-gateways' },
+            { text: 'Custom SMS & OTP Drivers', link: '/v1/customization/sms-drivers' },
+            { text: 'Shipping Methods & Carriers', link: '/v1/customization/shipping-methods' },
+            { text: 'Filament Admin Panel', link: '/v1/customization/filament-admin' },
+            { text: 'Modular Extensions', link: '/v1/customization/modular-extensions' },
+            { text: 'Domain Events & Webhooks', link: '/v1/customization/domain-events' }
           ]
         },
         {

@@ -1,44 +1,93 @@
-# Orchestrator CLI Reference (`./reyhan`)
+# Orchestrator CLI Reference
 
-Reyhan includes a unified, executable orchestrator script at the root of your project (`./reyhan`) as well as first-class Artisan commands (`php artisan reyhan:*`). It wraps backend Artisan utilities, Octane daemons, and system health diagnostics into simple, memorable commands.
+- [Introduction](#introduction)
+- [Available Commands](#available-commands)
+- [Command Deep Dive](#command-deep-dive)
+    - [`./reyhan version`](#cmd-version)
+    - [`./reyhan doctor`](#cmd-doctor)
+    - [`./reyhan dev`](#cmd-dev)
+    - [`./reyhan install`](#cmd-install)
+    - [`./reyhan update`](#cmd-update)
+
+<a name="introduction"></a>
+## Introduction
+
+Reyhan Commerce includes a unified executable binary in the root of your project (`./reyhan`) as well as first-class Artisan commands (`php artisan reyhan:*`). It simplifies daily developer workflows, production deployments, and maintenance tasks into expressive, easy-to-remember commands.
 
 ---
 
-## Command Reference Matrix
+<a name="available-commands"></a>
+## Available Commands
 
-| Command | Usage | Description |
+| Command | Syntax | Purpose |
 | :--- | :--- | :--- |
-| `version` | `./reyhan version` | Displays the full version matrix of the core framework, database engine, and active extensions. |
-| `doctor` | `./reyhan doctor` | Comprehensive diagnostic testing PHP runtime, PostgreSQL connectivity, Redis latency, and symlinks. |
-| `install` | `./reyhan install` | Automates baseline keys generation, database migrations, seeders, storage links, and build assets. |
-| `install --prod` | `./reyhan install --prod` | Production installer initializing Docker containers, Caddy reverse-proxy, and Octane servers. |
-| `update` | `./reyhan update` | Zero-downtime rolling update with automatic database backup, migrations, and Octane reload. |
-| `dev` | `./reyhan dev` | Boots the high-performance local Laravel development server with queue workers and real-time logs. |
+| `version` | `./reyhan version` | Displays framework version matrix, PHP runtime, database status, and active extensions. |
+| `doctor` | `./reyhan doctor` | Diagnoses PostgreSQL connectivity, Redis latency, PHP C-extensions, and filesystem permissions. |
+| `dev` | `./reyhan dev` | Starts local backend development server, queue workers, and API documentation endpoints. |
+| `install` | `./reyhan install` | Automates local environment provisioning (encryption keys, migrations, demo seeders). |
+| `install --prod` | `./reyhan install --prod` | Production automated VPS installer initializing Docker, Caddy TLS, and worker-mode runtimes. |
+| `update` | `./reyhan update` | Performs zero-downtime framework updates with automated database backup and migration. |
 
 ---
 
-## Detailed Command Walkthrough
+<a name="command-deep-dive"></a>
+## Command Deep Dive
 
-### 1. `./reyhan version`
-Outputs a structured summary of your backend engine:
-```text
-Reyhan Commerce Orchestrator
-Framework Core: v1.0.0 (SemVer)
-PHP Version:    8.4.2 (CLI)
-Database:       PostgreSQL 17.0 (Connected)
-In-Memory:      Redis 7.2.4 (Active)
-Extensions:     4 Active Plugins
+<a name="cmd-version"></a>
+### `./reyhan version`
+
+Displays a structured overview of your application runtime:
+
+```bash
+./reyhan version
 ```
 
-### 2. `./reyhan doctor`
-Validates all mandatory dependencies:
+```text
+  Reyhan Commerce Unified Orchestrator
+  Framework Core: v1.0.0 (SemVer)
+  Laravel Engine: v13.17.0
+  PHP Runtime:    8.4.2 (CLI)
+  Database:       PostgreSQL 17.0 (Connected)
+  In-Memory:      Redis 7.2.4 (Active)
+  Extensions:     3 Active Plugins
+```
+
+<a name="cmd-doctor"></a>
+### `./reyhan doctor`
+
+Runs an automated system diagnostic check:
+
 ```bash
 ./reyhan doctor
-# or
-php artisan reyhan:doctor
 ```
 
-### 3. `./reyhan dev`
-Spawns the local development stack:
-* `[backend]` `http://localhost:8000` (API & Filament Admin)
-* `[queue]` Redis worker listening on `QUEUE_CONNECTION=redis`
+<a name="cmd-dev"></a>
+### `./reyhan dev`
+
+Starts the local development server:
+
+```bash
+./reyhan dev
+```
+
+* API Endpoints: `http://localhost:8000/api/v1`
+* Interactive OpenAPI Docs: `http://localhost:8000/docs/api`
+* Filament Backoffice: `http://localhost:8000/admin`
+
+<a name="cmd-install"></a>
+### `./reyhan install`
+
+Provisions a fresh installation with database migrations, demo catalog data, and encryption keys:
+
+```bash
+./reyhan install
+```
+
+<a name="cmd-update"></a>
+### `./reyhan update`
+
+Executes an automated rolling framework update with database snapshots:
+
+```bash
+./reyhan update
+```
